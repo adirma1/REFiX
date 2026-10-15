@@ -1,0 +1,52 @@
+<?php
+
+/*
+ * RE-FiX – Rechnungsprogramm
+ * Copyright (C) 2026 Martin Adirsch
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of
+ * version 2 of the GNU General Public License as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program
+ * (file LICENSE). If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>.
+ *
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
+
+namespace App\Models\Concerns;
+
+use App\Models\Tenant;
+use App\Support\Tenancy;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use RuntimeException;
+
+trait BelongsToTenant
+{
+    protected static function bootBelongsToTenant(): void
+    {
+        static::addGlobalScope('tenant', function (Builder $builder) {
+            // Ohne aktiven Mandanten: id 0 existiert nie, also kein Treffer.
+            $builder->where($builder->getModel()->getTable().'.tenant_id', Tenancy::id() ?? 0);
+        });
+
+        static::creating(function ($model) {
+            if (! $model->tenant_id) {
+                $model->tenant_id = Tenancy::id();
+            }
+
+            if (! $model->tenant_id) {
+                throw new RuntimeException('Kein Mandant aktiv.');
+            }
+        });
+    }
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(Tenant::class);
+    }
+}

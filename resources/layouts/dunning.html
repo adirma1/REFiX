@@ -1,0 +1,130 @@
+<style>
+    body { font-family: dejavusans; font-size: 9pt; color: #1b1b1b; }
+    table { border-collapse: collapse; }
+    .items th { border-bottom: 0.4mm solid #333; padding: 1.5mm 1mm; font-size: 8pt; text-align: left; }
+    .items th.r { text-align: right; }
+    .items td { padding: 1.6mm 1mm; border-bottom: 0.2mm solid #ccc; vertical-align: top; }
+    .r { text-align: right; }
+    .small { font-size: 7.5pt; }
+    .muted { color: #555; }
+    .grand td { border-top: 0.4mm solid #333; font-weight: bold; font-size: 10.5pt; padding-top: 1.5mm; }
+</style>
+
+<!-- Logo bzw. Firmenname oben rechts -->
+<div style="position: absolute; left: 115mm; top: 12mm; width: 75mm; text-align: right;">
+    {{#if tenant.logo}}
+        <img src="{{tenant.logo}}" style="max-height: 22mm; max-width: 70mm;">
+    {{else}}
+        <div style="font-size: 13pt; font-weight: bold;">{{tenant.name}}</div>
+    {{/if}}
+</div>
+
+<!-- Absenderzeile und Anschrift (DIN 5008, Form B) -->
+<div style="position: absolute; left: 20mm; top: 45mm; width: 85mm; font-size: 6pt; color: #555; white-space: nowrap; border-bottom: 0.2mm solid #999;">{{tenant.sender_line}}</div>
+
+<div style="position: absolute; left: 20mm; top: 51mm; width: 85mm; height: 36mm; font-size: 10pt;">
+    <b>{{customer.company}}</b><br>
+    {{#if customer.contact}}{{customer.contact}}<br>{{/if}}
+    {{customer.street}}<br>
+    {{customer.zip}} {{customer.city}}
+    {{#if customer.show_country}}<br>{{customer.country}}{{/if}}
+</div>
+
+<!-- Informationsblock rechts -->
+<div style="position: absolute; left: 118mm; top: 51mm; width: 72mm;">
+    <table width="100%" class="small">
+        <tr><td class="muted">{{labels.date}}</td><td class="r">{{doc.date}}</td></tr>
+        {{#if customer.number}}<tr><td class="muted">{{labels.customer_no}}</td><td class="r">{{customer.number}}</td></tr>{{/if}}
+        <tr><td class="muted">{{labels.invoice_no}}</td><td class="r"><b>{{invoice.number}}</b></td></tr>
+    </table>
+</div>
+
+<!-- Platz für den Anschriftenbereich auf Seite 1 -->
+<div style="height: 74mm;"></div>
+
+<h2 style="font-size: 14pt; margin: 0 0 4mm 0;">{{doc.title}}</h2>
+
+<p style="margin: 0 0 5mm 0;">{{doc.text | br}}</p>
+
+<table class="items" width="100%">
+    <thead>
+    <tr>
+        <th width="40%">{{labels.position}}</th>
+        <th width="20%">{{labels.invoice_date}}</th>
+        <th width="20%">{{labels.due}}</th>
+        <th width="20%" class="r" align="right" style="text-align: right;">{{labels.amount}}</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>{{invoice.open_text}}</td>
+        <td>{{invoice.date}}</td>
+        <td>{{invoice.due_date}}</td>
+        <td class="r">{{dunning.open_amount}}</td>
+    </tr>
+    {{#if dunning.has_fee}}
+        <tr><td colspan="3">{{dunning.fee_label}}</td><td class="r">{{dunning.fee}}</td></tr>
+    {{/if}}
+    {{#if dunning.has_interest}}
+        <tr><td colspan="3">{{dunning.interest_label}}</td><td class="r">{{dunning.interest}}</td></tr>
+    {{/if}}
+    </tbody>
+</table>
+
+<table width="100%" style="margin-top: 3mm;" nobr="true">
+    <tr class="grand">
+        <td width="60%">{{labels.total}}</td>
+        <td width="40%" class="r">{{dunning.total}} {{doc.currency}}</td>
+    </tr>
+</table>
+
+<table width="100%" style="margin-top: 8mm;" nobr="true">
+    <tr>
+        <td width="72%" style="vertical-align: top;">
+            <b>{{doc.pay_by_text}}</b><br>
+            {{#if payment.has_bank}}
+                <span class="small muted">
+                    {{labels.bank_transfer}}: {{tenant.bank_name}}<br>
+                    IBAN {{tenant.iban}}{{#if tenant.bic}} · BIC {{tenant.bic}}{{/if}}<br>
+                    {{labels.reference}}: {{payment.reference}}
+                </span>
+            {{/if}}
+        </td>
+        <td width="28%" class="r" style="vertical-align: top;">
+            {{#if payment.has_qr}}
+                <img src="{{payment.qr}}" style="width: 28mm; height: 28mm;"><br>
+                <span class="small muted">{{labels.girocode}}</span>
+            {{/if}}
+        </td>
+    </tr>
+</table>
+
+<p class="small muted" style="margin-top: 6mm;">{{doc.crossed_note}}</p>
+
+===FOOTER===
+<div style="border-top: 0.2mm solid #999; padding-top: 1.5mm; font-family: dejavusans; font-size: 6.3pt; color: #444;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="35%" style="vertical-align: top; padding-right: 2mm;">
+                <b style="white-space: nowrap;">{{tenant.name}}</b><br>
+                {{tenant.street}}<br>
+                {{tenant.zip}} {{tenant.city}}
+                {{#if tenant.managing_director}}<br>{{labels.managing_director}}: {{tenant.managing_director}}{{/if}}
+            </td>
+            <td width="33%" style="vertical-align: top; padding-right: 2mm;">
+                {{#if tenant.phone}}{{tenant.phone}}<br>{{/if}}
+                {{#if tenant.email}}{{tenant.email}}<br>{{/if}}
+                {{#if tenant.website}}{{tenant.website}}<br>{{/if}}
+                {{#if tenant.vat_id}}{{labels.vat_id}} {{tenant.vat_id}}<br>{{/if}}
+                {{#if tenant.tax_number}}{{labels.tax_number}} {{tenant.tax_number}}{{/if}}
+            </td>
+            <td width="32%" style="vertical-align: top;">
+                {{#if tenant.bank_name}}{{tenant.bank_name}}<br>{{/if}}
+                {{#if tenant.iban}}<span style="white-space: nowrap;">IBAN {{tenant.iban_compact}}</span><br>{{/if}}
+                {{#if tenant.bic}}BIC {{tenant.bic}}<br>{{/if}}
+                {{#if tenant.court}}{{tenant.court}} {{tenant.register_number}}{{/if}}
+            </td>
+        </tr>
+    </table>
+    <div style="text-align: right; margin-top: 1mm;">{{labels.page}} {PAGENO} / {nbpg}</div>
+</div>

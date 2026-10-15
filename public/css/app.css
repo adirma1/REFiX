@@ -1,0 +1,297 @@
+/*
+ * RE-FiX – Rechnungsprogramm
+ * Copyright (C) 2026 Martin Adirsch
+ *
+ * This program is free software; you can redistribute it and/or modify it under the terms of
+ * version 2 of the GNU General Public License as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with this program
+ * (file LICENSE). If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>.
+ *
+ * SPDX-License-Identifier: GPL-2.0-only
+ */
+:root {
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --text: #1f2933;
+    --muted: #6b7785;
+    --line: #d9dee5;
+    --primary: #1b4f9c;
+    --primary-dark: #143c78;
+    --danger: #b3261e;
+    --ok: #1c7c3b;
+    --warn: #8a5a00;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.45;
+}
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.topbar {
+    background: var(--primary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0 1.25rem;
+    flex-wrap: wrap;
+}
+.topbar a { color: #fff; padding: .85rem .25rem; display: inline-block; }
+.topbar a.active { border-bottom: 3px solid #fff; }
+.topbar .brand { font-weight: 700; margin-right: .5rem; }
+.topbar .spacer { flex: 1; }
+.topbar select, .topbar button.link {
+    background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5);
+    border-radius: 4px; padding: .3rem .5rem; font: inherit; cursor: pointer;
+}
+.topbar select option { color: #000; }
+.topbar form { display: inline; margin: 0; }
+
+.testmode {
+    background: #fff3cd; color: #664d03; text-align: center;
+    padding: .5rem; font-weight: 600; border-bottom: 1px solid #ffe69c;
+}
+
+main { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem 3rem; }
+main.narrow { max-width: 460px; }
+main.medium { max-width: 760px; }
+
+h1 { font-size: 1.5rem; margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; margin: 1.5rem 0 .75rem; }
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.alert { padding: .75rem 1rem; border-radius: 6px; margin-bottom: 1rem; border: 1px solid; }
+.alert.ok { background: #e7f5ec; border-color: #b9e0c6; color: var(--ok); }
+.alert.warn { background: #fff7e0; border-color: #f0dc9c; color: var(--warn); }
+.alert.error { background: #fdeceb; border-color: #f2c0bd; color: var(--danger); }
+
+.field { margin-bottom: .9rem; }
+.field label { display: block; font-weight: 600; margin-bottom: .25rem; font-size: .92rem; }
+.field input[type=text], .field input[type=email], .field input[type=password],
+.field input[type=number], .field input[type=date], .field select, .field textarea {
+    width: 100%; padding: .5rem .6rem; border: 1px solid var(--line);
+    border-radius: 5px; font: inherit; background: #fff;
+}
+.field textarea { min-height: 90px; }
+.field .hint { color: var(--muted); font-size: .85rem; margin-top: .2rem; }
+.field .error { color: var(--danger); font-size: .88rem; margin-top: .2rem; }
+.field.check label { font-weight: 400; display: flex; gap: .5rem; align-items: center; }
+
+.grid { display: grid; gap: 0 1rem; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+/* Kundenformular: kurze Felder (Nummer, Anrede, PLZ, Land, Datum) schmal, lange Felder breiter; auf kleinen Bildschirmen untereinander. */
+@media (min-width: 700px) {
+    .grid.g-number { grid-template-columns: minmax(0, .28fr) minmax(0, 1.72fr); }
+    .grid.g-name { grid-template-columns: minmax(0, .33fr) minmax(0, 1.33fr) minmax(0, 1.33fr); }
+    .grid.g-address { grid-template-columns: minmax(0, 1.57fr) minmax(0, .5fr) minmax(0, 1.57fr) minmax(0, .36fr); }
+    .grid.narrow-wide { grid-template-columns: 11rem minmax(0, 1fr); }
+}
+
+.btn {
+    display: inline-block; background: var(--primary); color: #fff; border: 0;
+    border-radius: 5px; padding: .5rem 1rem; font: inherit; cursor: pointer;
+}
+.btn:hover { background: var(--primary-dark); text-decoration: none; }
+.btn.secondary { background: #e3e8ef; color: var(--text); }
+.btn.secondary:hover { background: #d3dae4; }
+.btn.danger { background: var(--danger); }
+.btn.small { padding: .25rem .6rem; font-size: .88rem; }
+
+table { width: 100%; border-collapse: collapse; background: var(--card); }
+th, td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .85rem; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+td.num, th.num { text-align: right; }
+td.actions { white-space: nowrap; text-align: right; }
+td.actions form { display: inline; }
+
+.toolbar { display: flex; gap: .75rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+.toolbar form { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; max-width: 100%; }
+.toolbar input[type=text] { padding: .45rem .6rem; border: 1px solid var(--line); border-radius: 5px; font: inherit; }
+.toolbar .spacer { flex: 1; }
+
+.tiles { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.tile { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.25rem; }
+.tile .value { font-size: 2rem; font-weight: 700; }
+.tile .label { color: var(--muted); }
+/* Kundenkarte im Dashboard: Balken je Tag */
+.tagbars { display: grid; gap: .35rem; }
+.tagrow { display: grid; grid-template-columns: 7rem minmax(0, 1fr) 3rem; gap: .75rem; align-items: center; color: inherit; text-decoration: none; }
+a.tagrow:hover .bar { background: var(--primary-dark); }
+.tagrow .track { height: .7rem; background: #e9edf2; border-radius: 99px; overflow: hidden; }
+.tagrow .bar { display: block; height: 100%; background: var(--primary); border-radius: 99px; }
+.tagrow .n { text-align: right; font-variant-numeric: tabular-nums; }
+
+.muted { color: var(--muted); }
+.badge { display: inline-block; padding: .1rem .5rem; border-radius: 99px; font-size: .78rem; background: #e3e8ef; white-space: nowrap; }
+.badge.ok { background: #ddf2e4; color: var(--ok); }
+.badge.warn { background: #fff0c2; color: var(--warn); }
+
+code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.codes { columns: 2; font-family: ui-monospace, monospace; background: #f4f6f9; padding: .75rem 1rem; border-radius: 6px; }
+.qr { text-align: center; margin: 1rem 0; }
+.qr svg { max-width: 220px; height: auto; }
+.langswitch { text-align: center; margin-top: 1rem; color: var(--muted); }
+.version-line { text-align: center; margin-top: .4rem; font-size: .8rem; color: var(--muted); }
+.topbar a.version { font-size: .78rem; opacity: .75; }
+@media (min-width: 861px) { .topbar > a.version { padding: .3rem .6rem; } }
+.pagination { margin-top: 1rem; }
+.list-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+.list-footer .pagination { margin-top: 0; flex: 1; }
+.per-page { display: flex; align-items: center; gap: .5rem; }
+.per-page label { margin: 0; font-weight: 400; color: var(--muted); white-space: nowrap; }
+.per-page select { width: auto; }
+.pager { display: flex; align-items: center; justify-content: center; gap: 1rem; }
+.pager .disabled { opacity: .45; pointer-events: none; }
+.audit-table { table-layout: fixed; }
+.audit-table th:nth-child(1) { width: 10.5rem; }
+.audit-table th:nth-child(2) { width: 9rem; }
+.audit-table th:nth-child(3) { width: 12rem; }
+.audit-table td { overflow-wrap: anywhere; word-break: break-word; vertical-align: top; }
+.audit-table td .mono { font-size: .8rem; }
+nav[role=navigation] svg { width: 1rem; height: 1rem; }
+
+/* Rechnungen */
+.items-edit { table-layout: fixed; }
+.items-edit th:nth-child(1), .items-edit td.pos { width: 2rem; }
+.items-edit th:nth-child(2) { width: 38%; }
+.items-edit td { padding: .4rem .35rem; }
+.items-edit input, .items-edit select, .items-edit textarea {
+    width: 100%; padding: .35rem .45rem; border: 1px solid var(--line); border-radius: 5px; font: inherit; background: #fff;
+}
+.items-edit td.qty input + input { margin-top: .3rem; }
+.items-edit textarea { margin-top: .3rem; min-height: 0; }
+.items-edit .hint { color: var(--warn); font-size: .82rem; }
+.totals-box { max-width: 420px; margin-left: auto; margin-top: 1rem; }
+.totals-box > div { display: flex; justify-content: space-between; gap: 1rem; padding: .2rem 0; }
+.totals-box .grand { border-top: 2px solid var(--text); margin-top: .3rem; padding-top: .4rem; font-weight: 700; font-size: 1.1rem; }
+.totals-box .note { color: var(--muted); font-size: .8rem; }
+.toolbar select { padding: .45rem .5rem; border: 1px solid var(--line); border-radius: 5px; font: inherit; }
+h1 .badge { vertical-align: middle; font-size: .8rem; }
+
+/* Einstellungen-Menü */
+.topbar details.dropdown { position: relative; }
+.topbar details.dropdown > summary {
+    list-style: none; cursor: pointer; padding: .85rem .25rem; display: inline-block; user-select: none;
+}
+.topbar details.dropdown > summary::-webkit-details-marker { display: none; }
+.topbar details.dropdown > summary::after { content: " ▾"; font-size: .8em; }
+.topbar details.dropdown.active > summary { border-bottom: 3px solid #fff; }
+.topbar details.dropdown .menu {
+    position: absolute; left: 0; top: 100%; z-index: 20; min-width: 12rem;
+    background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.18); padding: .3rem 0;
+}
+.topbar details.dropdown .menu a { display: block; color: var(--text); padding: .5rem 1rem; border: 0; }
+.topbar details.dropdown .menu a:hover { background: var(--bg); text-decoration: none; }
+.topbar details.dropdown .menu a.active { font-weight: 700; color: var(--primary); border: 0; }
+
+/* Tooltip (Hinweis beim Darüberfahren) */
+.tip { position: relative; display: inline-block; margin-left: .25rem; color: var(--muted); cursor: help; font-weight: 400; }
+.tip::after {
+    content: attr(data-tip); display: none; position: absolute; left: 0; top: 130%; z-index: 30;
+    width: max-content; max-width: 280px; padding: .45rem .6rem; border-radius: 5px;
+    background: #1f2933; color: #fff; font-size: .82rem; line-height: 1.35; white-space: normal;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+}
+.tip:hover::after, .tip:focus::after { display: block; }
+
+/* E-Mail-Einstellungen */
+.matrix { width: auto; }
+.matrix th, .matrix td { text-align: center; padding: .4rem 1rem; }
+.matrix th:first-child, .matrix td:first-child { text-align: left; }
+.placeholder-list code { background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: .05rem .35rem; margin-right: .2rem; }
+.test-form { display: flex; gap: .75rem; align-items: flex-end; flex-wrap: wrap; }
+.test-form .field { margin-bottom: 0; }
+
+/* Seitenleiste (ab 861px Breite); darunter bleibt die Leiste oben */
+@media (min-width: 861px) {
+    .shell { display: flex; min-height: 100vh; align-items: stretch; }
+    .shell > .content { flex: 1; min-width: 0; }
+    .topbar {
+        flex: 0 0 12rem; width: 12rem; flex-direction: column; align-items: stretch; flex-wrap: nowrap;
+        gap: .15rem; padding: 1rem .5rem; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .topbar .brand { font-size: 1.1rem; padding: 0 .6rem .8rem; margin: 0; }
+    .topbar > a { display: block; padding: .5rem .6rem; border-radius: 5px; border-bottom: 0; }
+    .topbar > a:hover { background: rgba(255,255,255,.14); text-decoration: none; }
+    .topbar > a.active { background: rgba(255,255,255,.22); border-bottom: 0; font-weight: 600; }
+    .topbar .spacer { flex: 1 1 auto; min-height: 1rem; }
+    .topbar details.dropdown > summary { display: block; padding: .5rem .6rem; border-radius: 5px; }
+    .topbar details.dropdown > summary:hover { background: rgba(255,255,255,.14); }
+    .topbar details.dropdown.active > summary { border-bottom: 0; background: rgba(255,255,255,.22); font-weight: 600; }
+    .topbar details.dropdown .menu {
+        position: static; min-width: 0; background: transparent; border: 0; box-shadow: none; padding: .1rem 0 .3rem .6rem;
+    }
+    .topbar details.dropdown .menu a { color: #fff; padding: .35rem .6rem; border-radius: 5px; font-size: .93rem; }
+    .topbar details.dropdown .menu a:hover { background: rgba(255,255,255,.14); }
+    .topbar details.dropdown .menu a.active { color: #fff; background: rgba(255,255,255,.22); }
+    .topbar > span:not(.spacer):not(.brand) { padding: .3rem .6rem; font-size: .9rem; opacity: .9; }
+    .topbar select { width: 100%; }
+        .topbar form { display: block; }
+    main { margin-left: auto; margin-right: auto; }
+}
+
+/* Marke: Logo + Name */
+.topbar a.brand { display: inline-flex; align-items: center; gap: .55rem; font-weight: 700; color: #fff; }
+.topbar a.brand:hover { text-decoration: none; }
+.topbar a.brand img { display: block; height: 30px; width: auto; }
+@media (min-width: 861px) {
+    .topbar a.brand { padding: .2rem .6rem .8rem; font-size: 1.2rem; }
+    .topbar a.brand:hover { background: transparent; }
+}
+
+/* Mahnwesen: Auswahl vorn, Aktionen oben */
+.pick-col { width: 2.5rem; }
+.pick-col input { width: 1.25rem; height: 1.25rem; cursor: pointer; }
+tr[data-pick] { cursor: pointer; }
+tr[data-pick].selected td { background: #eaf1fb; }
+tr.voided td { opacity: .55; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:disabled:hover { background: inherit; }
+.btn.secondary:disabled:hover { background: #e3e8ef; }
+.dunning-hist .step-col { min-width: 12rem; }
+.hold-panel { margin-bottom: 1rem; }
+.hold-panel[hidden] { display: none; }
+
+/* Tablet: keine Auto-Vergrößerung beim Antippen von Feldern, Seite wird nie breiter als der Bildschirm */
+input, select, textarea { font-size: 16px; }
+.content { min-width: 0; overflow-x: auto; }
+.bank-new .assign-cell select { max-width: 18rem; }
+.bank-new .assign-cell { min-width: 14rem; }
+
+/* Tabellen mit langen Adressen/Hostnamen (class="wrap-cells"): Textzellen dürfen mitten im Wort umbrechen. Datumsangaben bleiben ganz. */
+.wrap-cells td:not(.num):not(.actions) { overflow-wrap: anywhere; }
+td.nowrap { white-space: nowrap; }
+@media (min-width: 861px) and (max-width: 1200px) { main { padding: 0 .75rem 3rem; } }
+
+/* Benutzerliste: Auswahl vorn, Aktionen oben (wie Offene Posten); lange E-Mail-Adressen brechen notfalls um */
+.users-table td:nth-child(4) { overflow-wrap: anywhere; }
+
+/* Schiebeschalter (Ein/Aus) */
+.switch-row { display: flex; align-items: center; gap: .75rem; cursor: pointer; margin-bottom: .5rem; }
+.switch { position: relative; display: inline-block; width: 3.1rem; height: 1.7rem; flex: 0 0 auto; }
+.switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; z-index: 1; }
+.switch .slider { position: absolute; inset: 0; background: #b8c2cf; border-radius: 99px; transition: background .15s; }
+.switch .slider::before { content: ""; position: absolute; width: 1.3rem; height: 1.3rem; left: .2rem; top: .2rem; background: #fff; border-radius: 50%; transition: transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.switch input:checked + .slider { background: var(--ok); }
+.switch input:checked + .slider::before { transform: translateX(1.4rem); }
+.switch input:focus-visible + .slider { outline: 2px solid var(--primary); outline-offset: 2px; }

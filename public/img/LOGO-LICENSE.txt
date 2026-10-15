@@ -1,0 +1,19 @@
+Logo-Datei: refix-logo.png
+
+Das RE-FiX-Logo ist NICHT Teil der unter der GNU General Public License stehenden Software.
+Copyright (C) 2026 Martin Adirsch. Alle Rechte vorbehalten.
+
+Das Logo darf nicht ohne vorherige schriftliche Zustimmung des Urhebers verwendet, kopiert, verändert
+oder weitergegeben werden, auch nicht zusammen mit der Software. Wer die Software verändert oder
+weitergibt, ersetzt diese Datei durch ein eigenes Logo.
+
+---
+
+Logo file: refix-logo.png
+
+The RE-FiX logo is NOT part of the software licensed under the GNU General Public License.
+Copyright (C) 2026 Martin Adirsch. All rights reserved.
+
+The logo may not be used, copied, modified or distributed without the prior written permission of the
+author, not even together with the software. Anyone who modifies or redistributes the software must
+replace this file with their own logo.

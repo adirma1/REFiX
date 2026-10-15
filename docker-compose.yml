@@ -1,0 +1,93 @@
+# Rechnungsprogramm – Docker Compose
+#
+# Läuft mit der OpenMediaVault-Compose-Erweiterung (Dienste > Compose > Dateien) ebenso wie mit
+# "docker compose up -d --build". Alle Einstellungen kommen aus Variablen: In OMV trägst du sie im Feld
+# "Umgebung" ein (Vorlage: omv.env.example), ohne OMV stehen sie in einer .env neben dieser Datei.
+#
+# Pflicht-Variablen: DB_PASSWORD, DB_ROOT_PASSWORD, APP_SOURCE (nur bei OMV, siehe unten).
+
+x-app-environment: &app-environment
+  APP_NAME: ${APP_NAME:-RE-FiX}
+  APP_ENV: production
+  APP_DEBUG: "false"
+  # Leer lassen: die App erzeugt den Schlüssel beim ersten Start und legt ihn im Storage-Volume ab.
+  APP_KEY: ${APP_KEY:-}
+  APP_URL: ${APP_URL:-http://localhost:8383}
+  APP_LOCALE: ${APP_LOCALE:-de}
+  APP_TIMEZONE: ${APP_TIMEZONE:-Europe/Berlin}
+  TRUSTED_PROXIES: ${TRUSTED_PROXIES:-*}
+  SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-false}
+  REQUIRE_2FA: ${REQUIRE_2FA:-true}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  SESSION_DRIVER: database
+  CACHE_STORE: database
+  QUEUE_CONNECTION: database
+  DB_CONNECTION: mariadb
+  DB_HOST: db
+  DB_PORT: "3306"
+  DB_DATABASE: ${DB_DATABASE:-rechnung}
+  DB_USERNAME: ${DB_USERNAME:-rechnung}
+  DB_PASSWORD: ${DB_PASSWORD:?Bitte DB_PASSWORD setzen}
+  # Optional: Admin beim ersten Start anlegen. Leer lassen, um die Einrichtungsseite zu nutzen.
+  ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+  ADMIN_NAME: ${ADMIN_NAME:-}
+  ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+  ADMIN_COMPANY: ${ADMIN_COMPANY:-}
+
+services:
+  app:
+    # APP_SOURCE = Ordner mit dem entpackten Projekt (dort liegt das Dockerfile).
+    # Ohne OMV genügt der Standard ".", wenn diese Datei im Projektordner liegt.
+    build: ${APP_SOURCE:-.}
+    image: rechnungsapp:latest
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8383}:80"
+    environment:
+      <<: *app-environment
+      RUN_MIGRATIONS: "true"
+    volumes:
+      # STORAGE_DATA: Pfad auf dem NAS (z. B. /srv/dev-disk-by-uuid-.../rechnung/storage) oder leer für ein Docker-Volume.
+      - ${STORAGE_DATA:-app_storage}:/var/www/html/storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Hintergrundprozess: Warteschlange und Zeitplaner (ab Phase 3 für Versand, Mahnungen, wiederkehrende Rechnungen).
+  worker:
+    image: rechnungsapp:latest
+    restart: unless-stopped
+    environment:
+      <<: *app-environment
+      RUN_MIGRATIONS: "false"
+    volumes:
+      - ${STORAGE_DATA:-app_storage}:/var/www/html/storage
+    command: >
+      su -m -s /bin/sh www-data -c
+      "php artisan schedule:work & exec php artisan queue:work --sleep=3 --tries=3 --max-time=3600"
+    depends_on:
+      - app
+
+  db:
+    image: mariadb:11.4
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE:-rechnung}
+      MARIADB_USER: ${DB_USERNAME:-rechnung}
+      MARIADB_PASSWORD: ${DB_PASSWORD:?Bitte DB_PASSWORD setzen}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Bitte DB_ROOT_PASSWORD setzen}
+      TZ: Europe/Berlin
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      # DB_DATA: Pfad auf dem NAS (z. B. /srv/dev-disk-by-uuid-.../rechnung/db) oder leer für ein Docker-Volume.
+      - ${DB_DATA:-db_data}:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Kein Port nach außen: die Datenbank ist nur für die App-Container erreichbar.
+
+volumes:
+  app_storage:
+  db_data:
