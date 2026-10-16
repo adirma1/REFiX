@@ -1,7 +1,16 @@
 # RE-FiX – Rechnungserstellung mit ZUGFeRD 
 
-Selbst gehostete, **mandantenfähige Web-Anwendung für Rechnungen** mit **ZUGFeRD/Factur-X-E-Rechnung**. Läuft als Docker-Stack (Laravel 12, PHP 8.3, MariaDB) und ist für kleine Unternehmen und Selbstständige gedacht, die ihre Rechnungsdaten auf dem eigenen Server 
-(z. B. NAS) behalten wollen. Für **OpenMediaVault** gibt es eine fertige Compose-Konfiguration (`docker-compose.yml` und `omv.env.example`), da ich diese NAS-Software selbst nutze.
+![RE-FiX Übersicht: Kennzahlen, Kundenstatistik und Umsatz der letzten 12 Monate](docs/images/dashboard.jpg)
+
+Selbst gehostete, **mandantenfähige Web-Anwendung für Rechnungen** mit **ZUGFeRD/Factur-X-E-Rechnung**, ohne Beschränkungen bei Rechnungen, Kunden, Benutzern und Mandanten. Die erzeugten ZUGFeRD-Rechnungen wurden bei ELSTER geprüft.
+
+RE-FiX läuft als Docker-Stack (Laravel 12, PHP 8.3, MariaDB) und ist für kleine Unternehmen und Selbstständige gedacht, die ihre Rechnungen auf dem eigenen Server (z. B. NAS) erstellen und speichern wollen. Für **OpenMediaVault** gibt es eine fertige Compose-Konfiguration (`docker-compose.yml` und `omv.env.example`), da ich diese NAS-Software selbst nutze.
+
+- **Rechnungsformulare per KI:** Das Aussehen der Belege lässt sich mit einer (auch lokalen) KI einfach erzeugen. Die Prompt-Verwaltung in der App liefert den passenden Prompt, die Layouts sind versioniert und mit Vorschau.
+- **Zahlungsabgleich:** Exportierte Kontoauszüge (CSV und CAMT.052/053/054 im XML-Format) werden eingelesen und automatisch mit den offenen Rechnungen abgeglichen; sichere Treffer sind schon vorausgewählt, sodass die Buchung der Kundenzahlungen schnell erledigt ist.
+- **Mahnwesen:** konfigurierbar und mehrstufig, mit Gebühren, Verzugszinsen und Mahnsperre.
+- **Versand per E-Mail:** Rechnungen, Gutschriften, Angebote und Mahnungen verschickst du direkt aus RE-FiX.
+- **Wiederkehrende Rechnungen:** monatlich, vierteljährlich oder jährlich, einfach einzurichten und automatisch als Entwurf erzeugt.
 
 Version 1.2.0 · Lizenz GPL-2.0 · Autor Martin Adirsch
 
