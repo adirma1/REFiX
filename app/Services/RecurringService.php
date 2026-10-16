@@ -98,7 +98,7 @@ class RecurringService
                 'next_date' => $next,
                 'end_date' => $data['end_date'] ?? null,
                 'currency' => $data['currency'],
-                'tax_mode' => $data['tax_mode'],
+                'tax_mode' => Tenant::findOrFail(Tenancy::id())->taxModeFor($data['tax_mode'] ?? null),
                 'discount_percent' => $data['discount_percent'] ?? 0,
                 'payment_term_days' => $data['payment_term_days'] ?? null,
                 'buyer_reference' => $data['buyer_reference'] ?? null,

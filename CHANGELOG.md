@@ -2,6 +2,13 @@
 
 Versionsnummer: Haupt.Neben.Korrektur (steht in `config/app.php` unter `version`).
 
+## 1.3.0 – 2026-10-16
+- Mandant ohne Umsatzsteuer (z. B. Verein, Kleinunternehmer): Unter Mandanten gibt es den Schalter „Dieser Mandant weist keine Umsatzsteuer aus“ mit einem
+  Hinweistext (Vorschläge: § 19 UStG, § 4 UStG, nicht steuerbar; frei änderbar). Neue Rechnungen, Angebote und wiederkehrende Rechnungen
+  dieses Mandanten haben dann den Steuerfall „Ohne Umsatzsteuer“ (Steuersatz 0 %, nicht änderbar). Der Hinweis steht unter den Summen im PDF und in der Belegansicht;
+  die E-Rechnung (ZUGFeRD) meldet die Kategorie E mit dem Hinweis als Befreiungsgrund und verlangt keine USt-IdNr. (die Steuernummer genügt).
+  Der Text wird beim Beleg festgehalten: freigegebene Belege ändern sich nicht, Gutschriften folgen der Rechnung. Neue Migration `add_vat_free_to_tenants_and_documents`.
+
 ## 1.2.0 – 2026-10-15
 - Kunden: neue Felder „Kunde seit“ (Vorbelegung heute, änderbar), „Kunde bis“, Häkchen „Aktiv“ und Tags (30 Zeichen). Liste mit Status-Spalte,
   Filtern für Status und Tag und Suche in Tags. Neue Migration `add_lifecycle_to_customers` (bestehende Kunden: seit 01.01.2026, aktiv).

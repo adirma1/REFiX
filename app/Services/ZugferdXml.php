@@ -71,7 +71,8 @@ class ZugferdXml
             $errors[] = 'Mandant: USt-IdNr. oder Steuernummer fehlt.';
         }
 
-        if ($invoice->tax_mode !== 'standard' && blank($tenant->vat_id)) {
+        // Ohne Umsatzsteuer (Kategorie E) genügt die Steuernummer, eine USt-IdNr. ist nicht nötig.
+        if (! in_array($invoice->tax_mode, ['standard', 'exempt'], true) && blank($tenant->vat_id)) {
             $errors[] = 'Mandant: USt-IdNr. ist für diese Steuerart erforderlich.';
         }
 
@@ -378,14 +379,14 @@ class ZugferdXml
             $this->add($tax, 'ram:CalculatedAmount', $this->money((float) $group['tax']));
             $this->add($tax, 'ram:TypeCode', 'VAT');
 
-            if ($reason = $this->exemption($category)) {
+            if ($reason = $this->exemption($category, $invoice->taxNoteText())) {
                 $this->add($tax, 'ram:ExemptionReason', $reason[1]);
             }
 
             $this->add($tax, 'ram:BasisAmount', $this->money((float) $group['net']));
             $this->add($tax, 'ram:CategoryCode', $category);
 
-            if ($reason) {
+            if ($reason && $reason[0] !== null) {
                 $this->add($tax, 'ram:ExemptionReasonCode', $reason[0]);
             }
 
@@ -468,14 +469,17 @@ class ZugferdXml
             'reverse_charge' => 'AE',
             'intra_community' => 'K',
             'export' => 'G',
+            'exempt' => 'E',
             default => $rate > 0 ? 'S' : 'Z',
         };
     }
 
     /** @return array{0: string, 1: string}|null  Code und Text der Steuerbefreiung */
-    private function exemption(string $category): ?array
+    private function exemption(string $category, string $note = ''): ?array
     {
         return match ($category) {
+            // Kein Ausweis der Umsatzsteuer: der Grund steht im Hinweistext des Mandanten (z. B. § 19 UStG).
+            'E' => [null, $note !== '' ? $note : (string) __('messages.pdf.tax_note.exempt')],
             'AE' => ['VATEX-EU-AE', 'Steuerschuldnerschaft des Leistungsempfängers (Reverse Charge)'],
             'K' => ['VATEX-EU-IC', 'Steuerfreie innergemeinschaftliche Lieferung'],
             'G' => ['VATEX-EU-G', 'Steuerfreie Ausfuhrlieferung'],

@@ -265,6 +265,18 @@ return [
     ],
 
     'tenants' => [
+        'vat_title' => 'VAT',
+        'vat_explain' => 'For associations, small businesses or other tenants that must not show VAT. All new invoices, quotes and recurring invoices of this tenant are then created without VAT (rate 0 %); the note appears on the document and in the e-invoice. Already issued documents do not change. Ask your tax advisor which reason applies.',
+        'vat_free' => 'This tenant does not show VAT',
+        'vat_note' => 'Note on the document',
+        'vat_preset' => 'Use a suggestion',
+        'vat_note_hint' => 'This text is printed below the totals and used as the exemption reason in the e-invoice (ZUGFeRD). You can change it freely.',
+        'vat_preset_none' => '– choose a suggestion –',
+        'vat_presets' => [
+            'kleinunternehmer' => ['label' => 'Small business (§ 19 UStG)', 'text' => 'No VAT shown, small business pursuant to § 19 UStG.'],
+            'steuerfrei' => ['label' => 'VAT exempt (§ 4 UStG)', 'text' => 'VAT-exempt supply pursuant to § 4 no. … UStG.'],
+            'nicht_steuerbar' => ['label' => 'Outside the scope of VAT', 'text' => 'Supply outside the scope of VAT, therefore no VAT is shown.'],
+        ],
         'email' => 'Email',
         'footer_free_text' => 'Printed unchanged in the footer, e.g. “Phone: +49 …”, “Email: …” or “Web: …”.',
         'invoice_settings' => 'Invoices',
@@ -469,7 +481,9 @@ return [
             'reverse_charge' => 'Reverse charge (§ 13b UStG)',
             'intra_community' => 'Intra-community, VAT exempt',
             'export' => 'Export / third country',
+            'exempt' => 'Without VAT',
         ],
+        'tax_mode_locked' => 'This tenant issues all documents without VAT (set under Tenants).',
         'order_ref' => 'Customer order number',
         'positions' => 'Line items',
         'article' => 'Article',
@@ -580,6 +594,7 @@ return [
             'reverse_charge' => 'Reverse charge: the recipient of the service is liable for VAT (§ 13b UStG).',
             'intra_community' => 'VAT-exempt intra-community supply or service.',
             'export' => 'VAT-exempt export supply or service not taxable in Germany.',
+            'exempt' => 'VAT not shown.',
         ],
     ],
 

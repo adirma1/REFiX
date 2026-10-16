@@ -182,7 +182,7 @@
                 <div><span>{{ __('messages.invoices.vat_on', ['rate' => rtrim(rtrim(number_format($group['rate'], 2, ',', '.'), '0'), ','), 'net' => $money($group['net'])]) }}</span><span>{{ $money($group['tax']) }}</span></div>
             @endforeach
         @else
-            <div class="muted"><span>{{ __('messages.pdf.tax_note.'.$invoice->tax_mode) }}</span><span></span></div>
+            <div class="muted"><span>{{ $invoice->taxNoteText() }}</span><span></span></div>
         @endif
         <div class="grand"><span>{{ __('messages.invoices.gross') }}</span><span>{{ $money($invoice->gross_total) }} {{ $invoice->currency }}</span></div>
     </div>

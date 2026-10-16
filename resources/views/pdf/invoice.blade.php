@@ -133,7 +133,7 @@
 </table>
 
 @if($invoice->tax_mode !== 'standard')
-    <p class="small" style="margin-top: 4mm;">{{ __('messages.pdf.tax_note.'.$invoice->tax_mode) }}</p>
+    <p class="small" style="margin-top: 4mm;">{{ $invoice->taxNoteText() }}</p>
 @endif
 
 @if($series)

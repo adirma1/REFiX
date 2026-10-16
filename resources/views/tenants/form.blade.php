@@ -97,6 +97,33 @@
         </div>
 
         <div class="card">
+            <h2 style="margin-top:0">{{ __('messages.tenants.vat_title') }}</h2>
+            <p class="muted">{{ __('messages.tenants.vat_explain') }}</p>
+            <div class="field check">
+                <input type="hidden" name="vat_free" value="0">
+                <label><input type="checkbox" name="vat_free" value="1" id="vat_free" @checked(old('vat_free', $tenant->vat_free))>
+                    {{ __('messages.tenants.vat_free') }}</label>
+            </div>
+            <div id="vat-free-fields">
+                <div class="field">
+                    <label for="vat_preset">{{ __('messages.tenants.vat_preset') }}</label>
+                    <select id="vat_preset">
+                        <option value="">{{ __('messages.tenants.vat_preset_none') }}</option>
+                        @foreach(__('messages.tenants.vat_presets') as $key => $preset)
+                            <option value="{{ $key }}" data-text="{{ $preset['text'] }}">{{ $preset['label'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="vat_free_note">{{ __('messages.tenants.vat_note') }}</label>
+                    <textarea id="vat_free_note" name="vat_free_note" maxlength="500">{{ old('vat_free_note', $tenant->vat_free_note) }}</textarea>
+                    <div class="hint">{{ __('messages.tenants.vat_note_hint') }}</div>
+                    @error('vat_free_note')<div class="error">{{ $message }}</div>@enderror
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
             <h2 style="margin-top:0">{{ __('messages.testmode.title') }}</h2>
             <p class="muted">{{ __('messages.testmode.explain') }}</p>
             <div class="field check">
@@ -110,3 +137,7 @@
         <a class="btn secondary" href="{{ route('tenants.index') }}">{{ __('messages.cancel') }}</a>
     </form>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/vat-note.js') }}?v={{ filemtime(public_path('js/vat-note.js')) }}"></script>
+@endpush

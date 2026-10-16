@@ -39,5 +39,5 @@ return [
     'locales' => ['de', 'en'],
 
     // Steuerfall der Rechnung (bei Nicht-Standard fällt keine Umsatzsteuer an).
-    'tax_modes' => ['standard', 'reverse_charge', 'intra_community', 'export'],
+    'tax_modes' => ['standard', 'reverse_charge', 'intra_community', 'export', 'exempt'],
 ];

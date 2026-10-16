@@ -42,6 +42,7 @@ class Tenant extends Model
         'dunning_fee_3' => 0,
         'dunning_interest_enabled' => false,
         'dunning_interest_margin' => 9,
+        'vat_free' => false,
     ];
 
     protected $fillable = [
@@ -54,12 +55,14 @@ class Tenant extends Model
         'dunning_days_after_due', 'dunning_grace_days', 'dunning_fee_1', 'dunning_fee_2', 'dunning_fee_3',
         'dunning_interest_enabled', 'dunning_base_rate', 'dunning_interest_margin',
         'dunning_text_1', 'dunning_text_2', 'dunning_text_3',
+        'vat_free', 'vat_free_note',
     ];
 
     protected function casts(): array
     {
         return [
             'test_mode' => 'boolean',
+            'vat_free' => 'boolean',
             'default_payment_days' => 'integer',
             'mail_send_roles' => 'array',
             'dunning_interest_enabled' => 'boolean',
@@ -89,6 +92,18 @@ class Tenant extends Model
     {
         // Auch bei manipulierten Daten bekommt der Lesezugriff nie das Recht.
         return array_values(array_intersect(self::MAIL_GRANTABLE_ROLES, $this->mail_send_roles ?? ['accounting']));
+    }
+
+    /** Steuerfall für neue Belege: Mandanten ohne Umsatzsteuer erzwingen „exempt“, sonst gilt die Wahl im Formular. */
+    public function taxModeFor(?string $requested): string
+    {
+        return $this->vat_free ? 'exempt' : ($requested ?: 'standard');
+    }
+
+    /** Hinweistext für Belege ohne Umsatzsteuer (Standardtext, wenn keiner hinterlegt ist). */
+    public function vatFreeNote(): string
+    {
+        return filled($this->vat_free_note) ? (string) $this->vat_free_note : __('messages.pdf.tax_note.exempt');
     }
 
     public function adminCount(): int

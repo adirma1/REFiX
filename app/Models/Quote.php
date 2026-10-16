@@ -20,6 +20,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditable;
+use App\Models\Concerns\HasTaxNote;
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -32,7 +33,7 @@ use LogicException;
  */
 class Quote extends Model
 {
-    use Auditable, BelongsToTenant;
+    use Auditable, BelongsToTenant, HasTaxNote;
 
     /** Belegart für Nummernkreis und Layout. */
     public const TYPE = 'quote';
@@ -49,7 +50,7 @@ class Quote extends Model
 
     protected $fillable = [
         'status', 'is_test', 'number', 'customer_id', 'customer_snapshot',
-        'issue_date', 'valid_until', 'currency', 'tax_mode', 'discount_percent',
+        'issue_date', 'valid_until', 'currency', 'tax_mode', 'tax_note', 'discount_percent',
         'buyer_reference', 'intro_text', 'footer_text', 'internal_notes',
         'net_total', 'discount_total', 'tax_total', 'gross_total', 'tax_breakdown',
         'issued_at', 'issued_by', 'status_changed_at', 'created_by',

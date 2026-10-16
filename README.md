@@ -12,7 +12,7 @@ RE-FiX läuft als Docker-Stack (Laravel 12, PHP 8.3, MariaDB) und ist für klein
 - **Versand per E-Mail:** Rechnungen, Gutschriften, Angebote und Mahnungen verschickst du direkt aus RE-FiX.
 - **Wiederkehrende Rechnungen:** monatlich, vierteljährlich oder jährlich, einfach einzurichten und automatisch als Entwurf erzeugt.
 
-Version 1.2.0 · Lizenz GPL-2.0 · Autor Martin Adirsch
+Version 1.3.0 · Lizenz GPL-2.0 · Autor Martin Adirsch
 
 ## Inhalt
 
@@ -244,6 +244,14 @@ Kunden, Artikel und Wiederkehrend haben neben der Suche Auswahlfelder zum Filter
 ### Kundennummern
 
 Beim Anlegen schlägt das Formular die nächste freie Nummer vor. Trägst du eine eigene Nummer ein, bleibt sie erhalten – ist sie schon vergeben (auch bei gelöschten Kunden) oder lässt du das Feld leer, vergibt die App die nächste freie Zahl und sagt dir Bescheid. Den Zählerstand siehst und setzt du unter *Einstellungen → Nummernkreise* („Kundennummern“); ohne Eintrag startet er hinter der höchsten vorhandenen Zahl. Beim Bearbeiten muss die Nummer eindeutig bleiben.
+
+### Mandant ohne Umsatzsteuer (Verein, Kleinunternehmer)
+
+Darf ein Mandant keine Umsatzsteuer ausweisen, schaltest du unter **Mandanten → bearbeiten → Umsatzsteuer** den Schalter „Dieser Mandant weist keine Umsatzsteuer aus“
+ein und wählst den Hinweistext (Vorschläge für § 19 UStG, § 4 UStG und „nicht steuerbar“, frei änderbar). Danach werden alle neuen Rechnungen, Angebote und
+wiederkehrenden Rechnungen dieses Mandanten mit dem Steuerfall „Ohne Umsatzsteuer“ angelegt: alle Positionen mit 0 %, der Hinweis unter den Summen im PDF, in der
+E-Rechnung (ZUGFeRD) als Kategorie E mit Befreiungsgrund; eine USt-IdNr. ist dafür nicht nötig (die Steuernummer genügt). Bereits freigegebene Belege bleiben unverändert,
+Gutschriften übernehmen den Steuerfall der Rechnung. Welcher Grund zutrifft, klärst du mit deinem Steuerberater.
 
 ### Kundenstatus: Kunde seit / bis, Aktiv, Tags
 

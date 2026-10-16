@@ -100,9 +100,7 @@
             <div class="grid">
                 <x-select name="currency" :label="__('messages.customers.currency')"
                           :options="array_combine(config('invoice.currencies'), config('invoice.currencies'))" :value="$recurring->currency" required />
-                <x-select name="tax_mode" :label="__('messages.invoices.tax_mode')"
-                          :options="collect(config('invoice.tax_modes'))->mapWithKeys(fn ($m) => [$m => __('messages.invoices.tax_modes.'.$m)])->all()"
-                          :value="$recurring->tax_mode" required />
+                <x-tax-mode :value="$recurring->tax_mode" />
                 <x-field name="payment_term_days" type="number" :label="__('messages.customers.payment_term_days')" :value="$recurring->payment_term_days"
                          :tip="__('messages.recurring.term_tip')" />
                 <x-field name="buyer_reference" :label="__('messages.customers.buyer_reference')" :value="$recurring->buyer_reference" />

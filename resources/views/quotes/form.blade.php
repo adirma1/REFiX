@@ -83,9 +83,7 @@
             <div class="grid">
                 <x-select name="currency" :label="__('messages.customers.currency')"
                           :options="array_combine(config('invoice.currencies'), config('invoice.currencies'))" :value="$quote->currency" required />
-                <x-select name="tax_mode" :label="__('messages.invoices.tax_mode')"
-                          :options="collect(config('invoice.tax_modes'))->mapWithKeys(fn ($m) => [$m => __('messages.invoices.tax_modes.'.$m)])->all()"
-                          :value="$quote->tax_mode" required />
+                <x-tax-mode :value="$quote->tax_mode" />
                 <x-field name="buyer_reference" :label="__('messages.customers.buyer_reference')" :value="$quote->buyer_reference" />
             </div>
         </div>

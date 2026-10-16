@@ -30,7 +30,7 @@ namespace App\Services;
  */
 class InvoiceCalculator
 {
-    public const TAX_MODES = ['standard', 'reverse_charge', 'intra_community', 'export'];
+    public const TAX_MODES = ['standard', 'reverse_charge', 'intra_community', 'export', 'exempt'];
 
     /**
      * @param  array<int, array{quantity: mixed, unit_price: mixed, discount_percent?: mixed, tax_rate: mixed}>  $items

@@ -265,6 +265,18 @@ return [
     ],
 
     'tenants' => [
+        'vat_title' => 'Umsatzsteuer',
+        'vat_explain' => 'Für Vereine, Kleinunternehmer oder andere Mandanten, die keine Umsatzsteuer ausweisen dürfen. Alle neuen Rechnungen, Angebote und wiederkehrenden Rechnungen dieses Mandanten werden dann ohne Umsatzsteuer erstellt (Steuersatz 0 %), der Hinweistext steht auf dem Beleg und in der E-Rechnung. Bereits freigegebene Belege ändern sich nicht. Welcher Grund zutrifft, klärst du am besten mit deinem Steuerberater.',
+        'vat_free' => 'Dieser Mandant weist keine Umsatzsteuer aus',
+        'vat_note' => 'Hinweistext auf dem Beleg',
+        'vat_preset' => 'Vorschlag übernehmen',
+        'vat_note_hint' => 'Dieser Text wird unter den Summen gedruckt und als Befreiungsgrund in die E-Rechnung (ZUGFeRD) übernommen. Er ist frei änderbar.',
+        'vat_preset_none' => '– Vorschlag wählen –',
+        'vat_presets' => [
+            'kleinunternehmer' => ['label' => 'Kleinunternehmer (§ 19 UStG)', 'text' => 'Kein Ausweis der Umsatzsteuer, da Kleinunternehmer gemäß § 19 UStG.'],
+            'steuerfrei' => ['label' => 'Steuerfrei (§ 4 UStG)', 'text' => 'Umsatzsteuerfreie Leistung gemäß § 4 Nr. … UStG.'],
+            'nicht_steuerbar' => ['label' => 'Nicht steuerbar', 'text' => 'Nicht steuerbarer Umsatz, daher kein Ausweis der Umsatzsteuer.'],
+        ],
         'email' => 'E-Mail',
         'footer_free_text' => 'Wird unverändert in der Fußzeile gedruckt, z. B. „Fon: +49 …“, „Email: …“ oder „Web: …“.',
         'invoice_settings' => 'Rechnungen',
@@ -469,7 +481,9 @@ return [
             'reverse_charge' => 'Reverse Charge (§ 13b UStG)',
             'intra_community' => 'Innergemeinschaftlich steuerfrei',
             'export' => 'Ausfuhr / Drittland',
+            'exempt' => 'Ohne Umsatzsteuer',
         ],
+        'tax_mode_locked' => 'Dieser Mandant stellt alle Belege ohne Umsatzsteuer aus (einstellbar unter Mandanten).',
         'order_ref' => 'Bestellnummer des Kunden',
         'positions' => 'Positionen',
         'article' => 'Artikel',
@@ -580,6 +594,7 @@ return [
             'reverse_charge' => 'Steuerschuldnerschaft des Leistungsempfängers (Reverse Charge, § 13b UStG). Die Umsatzsteuer ist vom Leistungsempfänger abzuführen.',
             'intra_community' => 'Steuerfreie innergemeinschaftliche Lieferung bzw. Leistung.',
             'export' => 'Steuerfreie Ausfuhrlieferung bzw. nicht im Inland steuerbare Leistung.',
+            'exempt' => 'Kein Ausweis der Umsatzsteuer.',
         ],
     ],
 

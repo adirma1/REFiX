@@ -45,7 +45,7 @@ class QuoteService
         return DB::transaction(function () use ($quote, $data, $items, $user) {
             $tenant = Tenant::findOrFail(Tenancy::id());
             $customer = Customer::findOrFail($data['customer_id']);
-            $taxMode = $data['tax_mode'] ?? 'standard';
+            $taxMode = $tenant->taxModeFor($data['tax_mode'] ?? null);
 
             if ($quote === null) {
                 $quote = new Quote([
@@ -65,12 +65,18 @@ class QuoteService
                 }
             }
 
+            $taxNote = null;
+            if ($taxMode === 'exempt') {
+                $taxNote = $tenant->vat_free ? $tenant->vatFreeNote() : ($quote->tax_note ?: $tenant->vatFreeNote());
+            }
+
             $discount = (float) ($data['discount_percent'] ?? 0);
             $calc = InvoiceCalculator::calculate($items, $discount, $taxMode);
 
             $quote->fill(array_merge($data, [
                 'customer_snapshot' => $this->invoices->snapshot($customer),
                 'tax_mode' => $taxMode,
+                'tax_note' => $taxNote,
                 'discount_percent' => $discount,
                 'net_total' => $calc['net_total'],
                 'discount_total' => $calc['discount_total'],
@@ -222,6 +228,7 @@ class QuoteService
                 'issue_date' => now()->toDateString(),
                 'currency' => $quote->currency,
                 'tax_mode' => $quote->tax_mode,
+                'tax_note' => $quote->tax_note,
                 'discount_percent' => (float) $quote->discount_percent,
                 'buyer_reference' => $quote->buyer_reference,
                 'payment_term_days' => $customer->payment_term_days,

@@ -46,8 +46,6 @@ class InvoiceService
         return DB::transaction(function () use ($invoice, $data, $items, $user, $type) {
             $tenant = Tenant::findOrFail(Tenancy::id());
             $customer = Customer::findOrFail($data['customer_id']);
-            $taxMode = $data['tax_mode'] ?? 'standard';
-
             if ($invoice === null) {
                 $invoice = new Invoice([
                     'type' => $type,
@@ -60,6 +58,17 @@ class InvoiceService
             }
 
             $isCredit = $invoice->type === Invoice::TYPE_CREDIT_NOTE;
+
+            // Mandant ohne Umsatzsteuer: neue Rechnungen sind immer ohne Umsatzsteuer. Gutschriften folgen der Ursprungsrechnung.
+            $taxMode = $isCredit
+                ? ($data['tax_mode'] ?? $invoice->tax_mode ?? 'standard')
+                : $tenant->taxModeFor($data['tax_mode'] ?? null);
+            $taxNote = null;
+            if ($taxMode === 'exempt') {
+                $taxNote = $tenant->vat_free && ! $isCredit
+                    ? $tenant->vatFreeNote()
+                    : ($data['tax_note'] ?? ($invoice->tax_note ?: $tenant->vatFreeNote()));
+            }
 
             // Inaktive Kunden und Kunden nach ihrem „Kunde bis“-Datum bekommen keine neuen Rechnungen (Gutschriften schon).
             if (! $isCredit && $customer->isBlockedFor($data['issue_date'] ?? null)) {
@@ -74,6 +83,7 @@ class InvoiceService
             $invoice->fill(array_merge($data, [
                 'customer_snapshot' => $this->snapshot($customer),
                 'tax_mode' => $taxMode,
+                'tax_note' => $taxNote,
                 'discount_percent' => $discount,
                 'net_total' => $calc['net_total'],
                 'discount_total' => $calc['discount_total'],
@@ -186,6 +196,7 @@ class InvoiceService
                 'issue_date' => now()->toDateString(),
                 'currency' => $original->currency,
                 'tax_mode' => $original->tax_mode,
+                'tax_note' => $original->tax_note,
                 'discount_percent' => $original->discount_percent,
                 'buyer_reference' => $original->buyer_reference,
                 'customer_order_ref' => $original->customer_order_ref,

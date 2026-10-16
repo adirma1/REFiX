@@ -29,6 +29,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class TenantController extends Controller
@@ -127,6 +128,8 @@ class TenantController extends Controller
             'bic' => strtoupper(str_replace(' ', '', (string) $request->input('bic'))) ?: null,
             'vat_id' => strtoupper(str_replace(' ', '', (string) $request->input('vat_id'))) ?: null,
             'test_mode' => $request->boolean('test_mode'),
+            'vat_free' => $request->boolean('vat_free'),
+            'vat_free_note' => trim((string) $request->input('vat_free_note')) ?: null,
         ]);
 
         $data = $request->validate([
@@ -148,6 +151,8 @@ class TenantController extends Controller
             'managing_director' => ['nullable', 'string', 'max:255'],
             'default_payment_days' => ['required', 'integer', 'min:0', 'max:365'],
             'test_mode' => ['boolean'],
+            'vat_free' => ['boolean'],
+            'vat_free_note' => [Rule::requiredIf($request->boolean('vat_free')), 'nullable', 'string', 'max:500'],
             'invoice_number_format' => ['sometimes', 'required', 'string', 'max:60', $this->numberFormatRule()],
             'credit_note_number_format' => ['sometimes', 'required', 'string', 'max:60', $this->numberFormatRule()],
             'quote_number_format' => ['sometimes', 'required', 'string', 'max:60', $this->numberFormatRule()],

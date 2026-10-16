@@ -20,6 +20,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditable;
+use App\Models\Concerns\HasTaxNote;
 use App\Models\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,7 +29,7 @@ use LogicException;
 
 class Invoice extends Model
 {
-    use Auditable, BelongsToTenant;
+    use Auditable, BelongsToTenant, HasTaxNote;
 
     public const TYPE_INVOICE = 'invoice';
 
@@ -53,7 +54,7 @@ class Invoice extends Model
         'type', 'billing_kind', 'status', 'is_test', 'number', 'customer_id', 'customer_snapshot', 'original_invoice_id',
         'series_invoice_id', 'series_no', 'quote_id', 'recurring_invoice_id',
         'issue_date', 'service_date_from', 'service_date_to', 'due_date',
-        'currency', 'tax_mode', 'payment_term_days',
+        'currency', 'tax_mode', 'tax_note', 'payment_term_days',
         'skonto1_percent', 'skonto1_days', 'skonto2_percent', 'skonto2_days', 'discount_percent',
         'buyer_reference', 'customer_order_ref', 'intro_text', 'footer_text', 'internal_notes',
         'net_total', 'discount_total', 'tax_total', 'gross_total', 'tax_breakdown',
