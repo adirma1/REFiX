@@ -7,7 +7,8 @@ Versionsnummer: Haupt.Neben.Korrektur (steht in `config/app.php` unter `version`
   Hinweistext (Vorschläge: § 19 UStG, § 4 UStG, nicht steuerbar; frei änderbar). Neue Rechnungen, Angebote und wiederkehrende Rechnungen
   dieses Mandanten haben dann den Steuerfall „Ohne Umsatzsteuer“ (Steuersatz 0 %, nicht änderbar). Der Hinweis steht unter den Summen im PDF und in der Belegansicht;
   die E-Rechnung (ZUGFeRD) meldet die Kategorie E mit dem Hinweis als Befreiungsgrund und verlangt keine USt-IdNr. (die Steuernummer genügt).
-  Der Text wird beim Beleg festgehalten: freigegebene Belege ändern sich nicht, Gutschriften folgen der Rechnung. Neue Migration `add_vat_free_to_tenants_and_documents`.
+  Der Text wird beim Beleg festgehalten: freigegebene Belege ändern sich nicht, Gutschriften folgen der Rechnung. 
+- Zum updaten einfach das Repository clonen, den Container neu erzeugen (Pull / Build) und starten. Die Migration erfolgt automatisch.  
 
 ## 1.2.0 – 2026-10-15
 - Kunden: neue Felder „Kunde seit“ (Vorbelegung heute, änderbar), „Kunde bis“, Häkchen „Aktiv“ und Tags (30 Zeichen). Liste mit Status-Spalte,
