@@ -43,6 +43,10 @@ class Tenant extends Model
         'dunning_interest_enabled' => false,
         'dunning_interest_margin' => 9,
         'vat_free' => false,
+        'show_due_text' => true,
+        'show_customer_number' => true,
+        'show_service_date' => true,
+        'dunning_enabled' => true,
     ];
 
     protected $fillable = [
@@ -55,7 +59,7 @@ class Tenant extends Model
         'dunning_days_after_due', 'dunning_grace_days', 'dunning_fee_1', 'dunning_fee_2', 'dunning_fee_3',
         'dunning_interest_enabled', 'dunning_base_rate', 'dunning_interest_margin',
         'dunning_text_1', 'dunning_text_2', 'dunning_text_3',
-        'vat_free', 'vat_free_note',
+        'vat_free', 'vat_free_note', 'show_due_text', 'show_customer_number', 'show_service_date', 'dunning_enabled',
     ];
 
     protected function casts(): array
@@ -63,6 +67,10 @@ class Tenant extends Model
         return [
             'test_mode' => 'boolean',
             'vat_free' => 'boolean',
+            'show_due_text' => 'boolean',
+            'show_customer_number' => 'boolean',
+            'show_service_date' => 'boolean',
+            'dunning_enabled' => 'boolean',
             'default_payment_days' => 'integer',
             'mail_send_roles' => 'array',
             'dunning_interest_enabled' => 'boolean',

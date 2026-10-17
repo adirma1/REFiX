@@ -65,7 +65,7 @@
             @if($tile['href'])</a>@else</div>@endif
         @endforeach
 
-        @if($canPayments)
+        @if($canPayments && $dunningSuggestions !== null)
             <a class="tile" href="{{ route('dunning.index') }}" style="color:inherit;text-decoration:none">
                 <div class="value">{{ $dunningSuggestions }}</div>
                 <div class="label">{{ __('messages.dashboard.dunning_due') }}</div>

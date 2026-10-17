@@ -132,6 +132,13 @@ class TenantController extends Controller
             'vat_free_note' => trim((string) $request->input('vat_free_note')) ?: null,
         ]);
 
+        // Nur auswerten, wenn das Feld im Formular war (sonst bleibt der bisherige Wert).
+        foreach (['show_due_text', 'show_customer_number', 'show_service_date'] as $switch) {
+            if ($request->has($switch)) {
+                $request->merge([$switch => $request->boolean($switch)]);
+            }
+        }
+
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'street' => ['nullable', 'string', 'max:255'],
@@ -152,6 +159,9 @@ class TenantController extends Controller
             'default_payment_days' => ['required', 'integer', 'min:0', 'max:365'],
             'test_mode' => ['boolean'],
             'vat_free' => ['boolean'],
+            'show_due_text' => ['sometimes', 'boolean'],
+            'show_customer_number' => ['sometimes', 'boolean'],
+            'show_service_date' => ['sometimes', 'boolean'],
             'vat_free_note' => [Rule::requiredIf($request->boolean('vat_free')), 'nullable', 'string', 'max:500'],
             'invoice_number_format' => ['sometimes', 'required', 'string', 'max:60', $this->numberFormatRule()],
             'credit_note_number_format' => ['sometimes', 'required', 'string', 'max:60', $this->numberFormatRule()],

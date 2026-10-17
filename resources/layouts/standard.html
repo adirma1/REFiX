@@ -37,7 +37,7 @@
         <tr><td class="muted">{{doc.number_label}}</td><td class="r"><b>{{doc.number}}</b></td></tr>
         <tr><td class="muted">{{labels.date}}</td><td class="r">{{doc.date}}</td></tr>
         {{#if customer.number}}<tr><td class="muted">{{labels.customer_no}}</td><td class="r">{{customer.number}}</td></tr>{{/if}}
-        <tr><td class="muted">{{labels.service_date}}</td><td class="r">{{doc.service_period}}</td></tr>
+        {{#if doc.service_period}}<tr><td class="muted">{{labels.service_date}}</td><td class="r">{{doc.service_period}}</td></tr>{{/if}}
         {{#if doc.order_ref}}<tr><td class="muted">{{labels.order_ref}}</td><td class="r">{{doc.order_ref}}</td></tr>{{/if}}
         {{#if doc.buyer_reference}}<tr><td class="muted">{{labels.buyer_reference}}</td><td class="r">{{doc.buyer_reference}}</td></tr>{{/if}}
         {{#if doc.refers_to}}<tr><td class="muted">{{labels.refers_to}}</td><td class="r">{{doc.refers_to}}</td></tr>{{/if}}

@@ -87,6 +87,11 @@ class DunningSettingsController extends Controller
             $update['dunning_text_'.$level] = ($text === '' || $text === DunningService::defaultText($level)) ? null : $text;
         }
 
+        // Nur auswerten, wenn das Feld im Formular war (sonst bleibt der bisherige Wert).
+        if ($request->has('dunning_enabled_present')) {
+            $update['dunning_enabled'] = $request->boolean('dunning_enabled');
+        }
+
         Tenant::findOrFail(Tenancy::id())->update($update);
 
         return redirect()->route('dunning.settings')->with('status', __('messages.saved'));

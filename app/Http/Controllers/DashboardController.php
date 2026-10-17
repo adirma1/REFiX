@@ -51,7 +51,7 @@ class DashboardController extends Controller
                 : null,
             'stats' => $stats->compute(),
             'canPayments' => $canPayments,
-            'dunningSuggestions' => $canPayments ? app(DunningService::class)->suggestions()->count() : null,
+            'dunningSuggestions' => $canPayments && \App\Models\Tenant::findOrFail(\App\Support\Tenancy::id())->dunning_enabled ? app(DunningService::class)->suggestions()->count() : null,
         ]);
     }
 

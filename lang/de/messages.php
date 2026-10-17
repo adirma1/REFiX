@@ -265,6 +265,12 @@ return [
     ],
 
     'tenants' => [
+        'show_customer_number' => 'Die Kundennummer im Belegkopf drucken',
+        'show_customer_number_hint' => 'Ohne Haken entfällt die Zeile „Kundennummer“ auf Rechnungen, Gutschriften, Angeboten und Mahnungen dieses Mandanten. Die Kundennummer bleibt in der Kundenverwaltung.',
+        'show_service_date' => 'Das Leistungsdatum im Belegkopf drucken',
+        'show_service_date_hint' => 'Ohne Haken entfällt die Zeile „Leistungsdatum“ im PDF. Achtung: Rechnungen müssen nach § 14 UStG grundsätzlich den Zeitpunkt der Leistung nennen; die E-Rechnung (ZUGFeRD) wird davon nicht verändert. Bitte mit dem Steuerberater abstimmen.',
+        'show_due_text' => 'Der Satz „Zahlbar bis … ohne Abzug.“ im Zahlungsblock drucken',
+        'show_due_text_hint' => 'Ohne Haken entfällt nur dieser Satz. Das Fälligkeitsdatum steht weiterhin im Belegkopf und in der E-Rechnung; Bankdaten und GiroCode bleiben erhalten. Gilt für alle Layouts dieses Mandanten.',
         'vat_title' => 'Umsatzsteuer',
         'vat_explain' => 'Für Vereine, Kleinunternehmer oder andere Mandanten, die keine Umsatzsteuer ausweisen dürfen. Alle neuen Rechnungen, Angebote und wiederkehrenden Rechnungen dieses Mandanten werden dann ohne Umsatzsteuer erstellt (Steuersatz 0 %), der Hinweistext steht auf dem Beleg und in der E-Rechnung. Bereits freigegebene Belege ändern sich nicht. Welcher Grund zutrifft, klärst du am besten mit deinem Steuerberater.',
         'vat_free' => 'Dieser Mandant weist keine Umsatzsteuer aus',
@@ -1006,6 +1012,11 @@ Mit freundlichen Grüßen
         'default_footer' => 'Wir freuen uns auf Ihren Auftrag.',
     ],
     'dunning' => [
+        'settings_enabled' => 'Mahnwesen',
+        'enabled' => 'Mahnwesen für diesen Mandanten verwenden',
+        'enabled_hint' => 'Ohne Haken gibt es für diesen Mandanten keine Mahnvorschläge, keine neuen Mahnungen und keine Mahnsperren, und die Kachel im Dashboard entfällt. Bereits erstellte Mahnungen und Sperren bleiben sichtbar (nur lesen). Alle Einstellungen unten bleiben erhalten.',
+        'disabled_banner' => 'Das Mahnwesen ist für diesen Mandanten abgeschaltet. Bereits erstellte Mahnungen sind nur noch zum Lesen da (Einstellungen → Mahnwesen).',
+        'disabled_notice' => 'Das Mahnwesen ist für diesen Mandanten abgeschaltet.',
         'title' => 'Mahnwesen',
         'intro' => 'Die App schlägt vor, welche Rechnungen jetzt gemahnt werden können. Es wird nichts automatisch erstellt oder versendet: Du wählst aus und bestätigst.',
         'tab_due' => 'Vorschläge',

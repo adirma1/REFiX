@@ -12,7 +12,7 @@ RE-FiX läuft als Docker-Stack (Laravel 12, PHP 8.3, MariaDB) und ist für klein
 - **Versand per E-Mail:** Rechnungen, Gutschriften, Angebote und Mahnungen verschickst du direkt aus RE-FiX.
 - **Wiederkehrende Rechnungen:** monatlich, vierteljährlich oder jährlich, einfach einzurichten und automatisch als Entwurf erzeugt.
 
-Version 1.3.0 · Lizenz GPL-2.0 · Autor Martin Adirsch
+Version 1.4.0 · Lizenz GPL-2.0 · Autor Martin Adirsch
 
 ## Inhalt
 
@@ -203,6 +203,7 @@ Unter „Wiederkehrend“ legst du Vorlagen an (Kunde, Positionen, Texte, Rhythm
   **Basiszinssatz** (ändert sich zum 1. Januar und 1. Juli, Bundesbank) trägst du selbst ein; die App kennt ihn nicht. Der Aufschlag ist 9 Prozentpunkte (Geschäftskunden, § 288 BGB), einstellbar. Gebühren und Zinsen stehen im Schreiben und in der Gesamtforderung, werden aber **nicht** als Zahlung auf die Rechnung gebucht. Zahlt der Kunde die Gesamtforderung, erscheint die Rechnung deshalb als „Überzahlt“; das ist die Mahngebühr bzw. der Zins.
 - **Mahnsperre:** Bei Streit oder Reklamation sperrst du eine Rechnung (mit Grund, optional bis zu einem Datum). Gesperrte Rechnungen  tauchen nicht in den Vorschlägen auf. Setzen/Aufheben auch an der Rechnung selbst.
 - Gemahnt werden nur freigegebene, echte Rechnungen mit Fälligkeitsdatum und offenem Betrag (keine Testbelege, keine Gutschriften). Teilzahlungen werden berücksichtigt: Das Schreiben nennt den dann noch offenen Betrag.
+- **Mahnwesen abschalten:** Unter *Einstellungen → Mahnwesen* lässt sich das Mahnwesen je Mandant ausschalten (z. B. für einen Verein). Dann gibt es keine Vorschläge, keine neuen Mahnungen, keine Mahnsperren und keine Dashboard-Kachel. Bereits erstellte Mahnungen und Sperren bleiben sichtbar (nur lesen, PDF abrufbar); die Einstellungen bleiben erhalten.
 - **Rechte:** Admin und Buchhaltung; E-Mail-Versand zusätzlich nur mit dem Recht „E-Mails versenden“.
 - **Hinweis:** Die Standardtexte sind sachliche Vorlagen und keine Rechtsberatung. Prüfe sie, bevor du sie für die letzte Mahnung einsetzt, und passe sie bei Bedarf in den Einstellungen an.
 
@@ -262,7 +263,7 @@ Jeder Kunde hat „Kunde seit“ (wird beim Anlegen mit dem heutigen Datum vorbe
 - **Sperre:** Für inaktive Kunden und für Rechnungsdaten **nach** dem „Kunde bis“-Datum lassen sich keine neuen Rechnungen anlegen oder freigeben (auch Teil-/Schlussrechnungen und Umwandlungen aus Angeboten). Am „bis“-Tag selbst ist es noch möglich. **Gutschriften** und **Angebote** bleiben erlaubt, bestehende Belege unverändert.
 - **Wiederkehrende Rechnungen:** Für gesperrte Kunden entstehen keine Entwürfe; die Vorlage bleibt unverändert und zeigt „Kunde gesperrt“. Wird der Kunde wieder aktiviert, werden versäumte Termine nachgeholt.
 - **Automatik:** Der Worker schaltet täglich um 04:30 Uhr (`customers:deactivate-expired`) „Aktiv“ bei Kunden aus, deren „Kunde bis“-Datum überschritten ist. Beim Speichern eines Kunden gilt dieselbe Regel. Ein Kunde mit vergangenem „bis“-Datum lässt sich nicht aktivieren – erst das Datum ändern oder leeren.
-- Bestehende Kunden erhalten bei der Migration „Kunde seit“ = 01.01.2026 und sind aktiv.
+- Bestehende Kunden erhalten beim Update „Kunde seit“ = 01.01.2026 und sind aktiv.
 - Kundenimport: optionale Spalten „Kunde seit“, „Kunde bis“ (JJJJ-MM-TT oder TT.MM.JJJJ), „Aktiv“ (ja/nein) und „Tags“.
 
 ### Kunden exportieren (CSV)

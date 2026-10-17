@@ -19,10 +19,16 @@
     @php($money = fn ($v) => number_format((float) $v, 2, ',', '.'))
     <h1>{{ __('messages.dunning.title') }}</h1>
     @include('payments._tabs')
-    <p class="muted">{{ __('messages.dunning.intro') }}</p>
+    @unless($enabled)
+        <div class="alert warn">{{ __('messages.dunning.disabled_banner') }}</div>
+    @endunless
+    @if($enabled)
+        <p class="muted">{{ __('messages.dunning.intro') }}</p>
+    @endif
 
     <div class="toolbar">
         @foreach(['due' => 'tab_due', 'history' => 'tab_history', 'holds' => 'tab_holds'] as $name => $label)
+            @continue(! $enabled && $name === 'due')
             <a @class(['btn', 'small', 'secondary' => $tab !== $name]) href="{{ route('dunning.index', ['tab' => $name]) }}">{{ __('messages.dunning.'.$label) }} ({{ $counts[$name] }})</a>
         @endforeach
         <span class="spacer"></span>
@@ -92,10 +98,10 @@
         <div class="toolbar" id="hist-actions">
             <button class="btn small secondary" type="button" data-act="pdf" disabled>PDF</button>
             @can('send-mail')
-                <button class="btn small secondary" type="button" data-act="mail" disabled>{{ __('messages.invoices.mail_button') }}</button>
+                <button class="btn small secondary" type="button" data-act="mail" disabled @unless($enabled) hidden @endunless>{{ __('messages.invoices.mail_button') }}</button>
             @endcan
-            <button class="btn small secondary" type="button" data-act="sent" title="{{ __('messages.dunning.mark_sent_tip') }}" disabled>{{ __('messages.dunning.mark_sent') }}</button>
-            <button class="btn small danger" type="button" data-act="void" data-confirm="{{ __('messages.dunning.void_confirm') }}" disabled>{{ __('messages.dunning.void') }}</button>
+            <button class="btn small secondary" type="button" data-act="sent" title="{{ __('messages.dunning.mark_sent_tip') }}" disabled @unless($enabled) hidden @endunless>{{ __('messages.dunning.mark_sent') }}</button>
+            <button class="btn small danger" type="button" data-act="void" data-confirm="{{ __('messages.dunning.void_confirm') }}" disabled @unless($enabled) hidden @endunless>{{ __('messages.dunning.void') }}</button>
             <span class="muted" id="hist-hint">{{ __('messages.dunning.pick_first') }}</span>
         </div>
         <form id="hist-form" method="POST" action="{{ route('dunning.index') }}" hidden>@csrf</form>
@@ -116,8 +122,8 @@
                 <tr data-pick @if($dunning->isVoided()) class="voided" @endif>
                     <td class="pick-col">
                         <input type="radio" class="pick-one" name="dunning" value="{{ $dunning->id }}" aria-label="{{ __('messages.dunning.select_letter') }}"
-                            @if(! $dunning->isVoided()) data-pdf="{{ route('dunning.pdf', $dunning) }}" data-mail="{{ route('dunning.mail', $dunning) }}" @endif
-                            @if($dunning->isPending()) data-sent="{{ route('dunning.sent', $dunning) }}" data-void="{{ route('dunning.void', $dunning) }}" @endif>
+                            @if(! $dunning->isVoided()) data-pdf="{{ route('dunning.pdf', $dunning) }}" @if($enabled) data-mail="{{ route('dunning.mail', $dunning) }}" @endif @endif
+                            @if($enabled && $dunning->isPending()) data-sent="{{ route('dunning.sent', $dunning) }}" data-void="{{ route('dunning.void', $dunning) }}" @endif>
                     </td>
                     <td>{{ $dunning->dunned_on->format('d.m.Y') }}</td>
                     <td><a href="{{ route('invoices.show', $dunning->invoice) }}">{{ $dunning->invoice->number }}</a></td>
@@ -156,9 +162,11 @@
                     <td>{{ $hold->reason }}</td>
                     <td>{{ $hold->hold_until?->format('d.m.Y') ?? __('messages.dunning.until_release') }}</td>
                     <td class="actions">
+                        @if($enabled)
                         <form method="POST" action="{{ route('dunning.release', $hold) }}">@csrf
                             <button class="btn small secondary" type="submit">{{ __('messages.dunning.release') }}</button>
                         </form>
+                        @endif
                     </td>
                 </tr>
             @empty

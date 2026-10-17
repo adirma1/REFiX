@@ -61,6 +61,24 @@
 
         <div class="card">
             <h2 style="margin-top:0">{{ __('messages.tenants.invoice_settings') }}</h2>
+            <div class="field check">
+                <input type="hidden" name="show_due_text" value="0">
+                <label><input type="checkbox" name="show_due_text" value="1" @checked(old('show_due_text', $tenant->show_due_text ?? true))>
+                    {{ __('messages.tenants.show_due_text') }}</label>
+                <div class="hint">{{ __('messages.tenants.show_due_text_hint') }}</div>
+            </div>
+            <div class="field check">
+                <input type="hidden" name="show_customer_number" value="0">
+                <label><input type="checkbox" name="show_customer_number" value="1" @checked(old('show_customer_number', $tenant->show_customer_number ?? true))>
+                    {{ __('messages.tenants.show_customer_number') }}</label>
+                <div class="hint">{{ __('messages.tenants.show_customer_number_hint') }}</div>
+            </div>
+            <div class="field check">
+                <input type="hidden" name="show_service_date" value="0">
+                <label><input type="checkbox" name="show_service_date" value="1" @checked(old('show_service_date', $tenant->show_service_date ?? true))>
+                    {{ __('messages.tenants.show_service_date') }}</label>
+                <div class="hint">{{ __('messages.tenants.show_service_date_hint') }}</div>
+            </div>
             <div class="grid">
                 <x-field name="invoice_number_format" :label="__('messages.tenants.invoice_number_format')" :value="$tenant->invoice_number_format"
                          required maxlength="60" :tip="__('messages.numbering.format_hint')" />

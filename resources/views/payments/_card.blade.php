@@ -123,7 +123,7 @@
         </table>
     @endif
     @can('manage-payments')
-        @if($bookable && $summary['open'] > 0)
+        @if($bookable && $summary['open'] > 0 && ($currentTenant->dunning_enabled ?? true))
             <details style="margin-top:.75rem">
                 <summary class="muted" style="cursor:pointer">{{ __('messages.dunning.card_hold') }}</summary>
                 <form method="POST" action="{{ route('dunning.hold', $invoice) }}" style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem">

@@ -26,6 +26,17 @@
         @csrf
 
         <div class="card">
+            <h2 style="margin-top:0">{{ __('messages.dunning.settings_enabled') }}</h2>
+            <input type="hidden" name="dunning_enabled_present" value="1">
+            <input type="hidden" name="dunning_enabled" value="0">
+            <div class="field check">
+                <label><input type="checkbox" name="dunning_enabled" value="1" @checked(old('dunning_enabled_present') ? old('dunning_enabled') : $tenant->dunning_enabled)>
+                    {{ __('messages.dunning.enabled') }}</label>
+                <div class="hint">{{ __('messages.dunning.enabled_hint') }}</div>
+            </div>
+        </div>
+
+        <div class="card">
             <h2 style="margin-top:0">{{ __('messages.dunning.settings_timing') }}</h2>
             <div class="grid">
                 <x-field name="dunning_days_after_due" type="number" :label="__('messages.dunning.days_after_due')" :value="$tenant->dunning_days_after_due" required

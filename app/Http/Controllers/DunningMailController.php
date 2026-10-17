@@ -42,6 +42,10 @@ class DunningMailController extends Controller
 
         $tenant = Tenant::with('mailAccount')->findOrFail(Tenancy::id());
 
+        if (! $tenant->dunning_enabled) {
+            return redirect()->route('dunning.index', ['tab' => 'history'])->with('warning', __('messages.dunning.disabled_notice'));
+        }
+
         if ($problem = $this->problem($dunning, $tenant)) {
             return redirect()->route('dunning.index', ['tab' => 'history'])->with('warning', $problem);
         }
@@ -63,6 +67,10 @@ class DunningMailController extends Controller
         $this->authorizeBoth();
 
         $tenant = Tenant::with('mailAccount')->findOrFail(Tenancy::id());
+
+        if (! $tenant->dunning_enabled) {
+            return redirect()->route('dunning.index', ['tab' => 'history'])->with('warning', __('messages.dunning.disabled_notice'));
+        }
 
         if ($problem = $this->problem($dunning, $tenant)) {
             return redirect()->route('dunning.index', ['tab' => 'history'])->with('warning', $problem);

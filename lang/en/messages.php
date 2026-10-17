@@ -265,6 +265,12 @@ return [
     ],
 
     'tenants' => [
+        'show_customer_number' => 'Print the customer number in the document header',
+        'show_customer_number_hint' => 'Without the tick the “Customer no.” line is left out of this tenant’s invoices, credit notes, quotes and reminders. The customer number stays in customer management.',
+        'show_service_date' => 'Print the service date in the document header',
+        'show_service_date_hint' => 'Without the tick the “Service date” line is left out of the PDF. Note: invoices generally have to state the date of supply (§ 14 UStG); the e-invoice (ZUGFeRD) is not changed by this. Please check with your tax advisor.',
+        'show_due_text' => 'Print the sentence “Payable by … without deduction.” in the payment block',
+        'show_due_text_hint' => 'Without the tick only this sentence is left out. The due date still appears in the document header and in the e-invoice; bank details and QR code stay. Applies to all layouts of this tenant.',
         'vat_title' => 'VAT',
         'vat_explain' => 'For associations, small businesses or other tenants that must not show VAT. All new invoices, quotes and recurring invoices of this tenant are then created without VAT (rate 0 %); the note appears on the document and in the e-invoice. Already issued documents do not change. Ask your tax advisor which reason applies.',
         'vat_free' => 'This tenant does not show VAT',
@@ -962,7 +968,7 @@ Mit freundlichen Grüßen
     ],
 
     'quotes' => [
-        'title_single' => 'Angebot',
+        'title_single' => 'Quote',
         'new' => 'New quote',
         'edit_title' => 'Edit quote :number',
         'valid_until' => 'Valid until',
@@ -1006,6 +1012,11 @@ Mit freundlichen Grüßen
         'default_footer' => 'Wir freuen uns auf Ihren Auftrag.',
     ],
     'dunning' => [
+        'settings_enabled' => 'Dunning',
+        'enabled' => 'Use dunning for this tenant',
+        'enabled_hint' => 'Without the tick this tenant gets no dunning suggestions, no new reminders and no dunning holds, and the dashboard tile disappears. Reminders and holds that already exist stay visible (read only). All settings below are kept.',
+        'disabled_banner' => 'Dunning is switched off for this tenant. Existing reminders are read only (Settings → Dunning).',
+        'disabled_notice' => 'Dunning is switched off for this tenant.',
         'title' => 'Dunning',
         'intro' => 'The app suggests which invoices can be chased now. Nothing is created or sent automatically: you choose and confirm.',
         'tab_due' => 'Suggestions',

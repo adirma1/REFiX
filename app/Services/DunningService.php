@@ -51,6 +51,11 @@ class DunningService
         $on ??= today();
         $tenant = Tenant::findOrFail(\App\Support\Tenancy::id());
 
+        // Mahnwesen des Mandanten abgeschaltet: keine Vorschläge.
+        if (! $tenant->dunning_enabled) {
+            return collect();
+        }
+
         return $this->payments->openItems()
             ->map(function (array $row) use ($tenant, $on) {
                 $check = $this->nextStep($row['invoice'], $row['summary'], $tenant, $on);
@@ -146,6 +151,11 @@ class DunningService
 
         return DB::transaction(function () use ($invoice, $user, $on) {
             $tenant = Tenant::findOrFail($invoice->tenant_id);
+
+            if (! $tenant->dunning_enabled) {
+                throw new DunningInvalid(__('messages.dunning.disabled_notice'));
+            }
+
             $summary = $this->payments->summary($invoice);
             $step = $this->evaluate($invoice, $summary, $tenant, $on);
 

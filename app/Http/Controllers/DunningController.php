@@ -22,9 +22,11 @@ namespace App\Http\Controllers;
 use App\Models\Dunning;
 use App\Models\DunningHold;
 use App\Models\Invoice;
+use App\Models\Tenant;
 use App\Services\DunningInvalid;
 use App\Services\DunningService;
 use App\Support\PerPage;
+use App\Support\Tenancy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -43,7 +45,12 @@ class DunningController extends Controller
     {
         $this->authorize('manage-payments');
 
+        $enabled = $this->enabled();
         $tab = in_array($request->query('tab'), self::TABS, true) ? $request->query('tab') : 'due';
+        // Abgeschaltet: nur noch lesen (Mahnungen und Sperren), keine Vorschlagsliste.
+        if (! $enabled && $tab === 'due') {
+            $tab = 'history';
+        }
         $perPage = PerPage::for($request->user());
         $data = [];
 
@@ -62,8 +69,9 @@ class DunningController extends Controller
 
         return view('dunning.index', $data + [
             'tab' => $tab,
+            'enabled' => $enabled,
             'counts' => [
-                'due' => $tab === 'due' ? $data['items']->total() : $this->dunnings->suggestions()->count(),
+                'due' => $tab === 'due' ? $data['items']->total() : ($enabled ? $this->dunnings->suggestions()->count() : 0),
                 'history' => Dunning::count(),
                 'holds' => DunningHold::active()->count(),
             ],
@@ -73,6 +81,10 @@ class DunningController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $this->authorize('manage-payments');
+
+        if (! $this->enabled()) {
+            return $this->disabled();
+        }
 
         $ids = array_filter(array_map('intval', (array) $request->input('invoices', [])));
         $created = 0;
@@ -101,6 +113,16 @@ class DunningController extends Controller
         return $redirect;
     }
 
+    private function enabled(): bool
+    {
+        return (bool) Tenant::findOrFail(Tenancy::id())->dunning_enabled;
+    }
+
+    private function disabled(): RedirectResponse
+    {
+        return redirect()->route('dunning.index', ['tab' => 'history'])->with('warning', __('messages.dunning.disabled_notice'));
+    }
+
     public function pdf(Request $request, Dunning $dunning): Response
     {
         $this->authorize('manage-payments');
@@ -120,6 +142,10 @@ class DunningController extends Controller
     {
         $this->authorize('manage-payments');
 
+        if (! $this->enabled()) {
+            return $this->disabled();
+        }
+
         try {
             $this->dunnings->void($dunning, $request->user());
         } catch (DunningInvalid $e) {
@@ -133,6 +159,10 @@ class DunningController extends Controller
     {
         $this->authorize('manage-payments');
 
+        if (! $this->enabled()) {
+            return $this->disabled();
+        }
+
         try {
             $this->dunnings->markSent($dunning, $request->user(), 'post');
         } catch (DunningInvalid $e) {
@@ -145,6 +175,10 @@ class DunningController extends Controller
     public function hold(Request $request, Invoice $invoice): RedirectResponse
     {
         $this->authorize('manage-payments');
+
+        if (! $this->enabled()) {
+            return $this->disabled();
+        }
 
         $data = $request->validate([
             'reason' => ['required', 'string', 'max:255'],
@@ -160,6 +194,10 @@ class DunningController extends Controller
     public function holdMany(Request $request): RedirectResponse
     {
         $this->authorize('manage-payments');
+
+        if (! $this->enabled()) {
+            return $this->disabled();
+        }
 
         $data = $request->validate([
             'invoices' => ['required', 'array', 'min:1'],
@@ -184,6 +222,10 @@ class DunningController extends Controller
     public function release(DunningHold $hold): RedirectResponse
     {
         $this->authorize('manage-payments');
+
+        if (! $this->enabled()) {
+            return $this->disabled();
+        }
 
         $this->dunnings->release($hold);
 
