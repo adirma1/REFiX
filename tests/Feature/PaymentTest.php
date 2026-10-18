@@ -321,6 +321,19 @@ class PaymentTest extends TestCase
             ->assertSee($open->number)->assertSee('11 Tage überfällig');
     }
 
+    public function test_open_items_filter_by_due_date_range(): void
+    {
+        $open = $this->invoice(); // fällig 25.10.2026
+
+        $this->actAs($this->accounting);
+        $this->get(route('payments.index', ['due_from' => '2026-10-20', 'due_to' => '2026-10-31']))
+            ->assertOk()->assertSee($open->number)->assertSee('Fällig am: 20.10.2026–31.10.2026', false);
+        $this->get(route('payments.index', ['due_from' => '2026-10-25', 'due_to' => '2026-10-25']))->assertSee($open->number);
+        $this->get(route('payments.index', ['due_to' => '2026-10-24']))->assertDontSee($open->number);
+        $this->get(route('payments.index', ['due_from' => '2026-10-26']))->assertDontSee($open->number);
+        $this->get(route('payments.index', ['due_from' => 'bald']))->assertSee($open->number);
+    }
+
     public function test_tenants_cannot_touch_each_others_payments(): void
     {
         $invoice = $this->invoice();

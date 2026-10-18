@@ -27,8 +27,10 @@ use App\Services\InvoiceCalculator;
 use App\Services\InvoicePdf;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
-use App\Support\Tenancy;
+use App\Support\DateRangeFilter;
+use App\Support\ListSort;
 use App\Support\PerPage;
+use App\Support\Tenancy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -47,9 +49,18 @@ class InvoiceController extends Controller
         $type = $request->query('type');
         $status = $request->query('status');
 
+        [$dateFrom, $dateTo] = DateRangeFilter::fromRequest($request);
+
+        $sort = ListSort::make($request, 'invoices', [
+            'number' => 'number', 'type' => 'type', 'customer' => ListSort::byCustomer('invoices'),
+            'date' => 'issue_date', 'gross' => 'gross_total', 'status' => 'status',
+        ], ['date', 'desc'], [['id', 'desc']]);
+
         $invoices = Invoice::query()->with('customer')
             ->when(in_array($type, [Invoice::TYPE_INVOICE, Invoice::TYPE_CREDIT_NOTE], true), fn ($q) => $q->where('type', $type))
             ->when(in_array($status, [Invoice::STATUS_DRAFT, Invoice::STATUS_ISSUED], true), fn ($q) => $q->where('status', $status))
+            ->when($dateFrom !== '', fn ($q) => $q->whereDate('issue_date', '>=', $dateFrom))
+            ->when($dateTo !== '', fn ($q) => $q->whereDate('issue_date', '<=', $dateTo))
             ->when($search !== '', function ($query) use ($search) {
                 $like = '%'.$search.'%';
                 $query->where(function ($q) use ($like) {
@@ -57,7 +68,7 @@ class InvoiceController extends Controller
                         ->orWhereHas('customer', fn ($c) => $c->where('company', 'like', $like)->orWhere('customer_number', 'like', $like));
                 });
             })
-            ->orderByDesc('issue_date')->orderByDesc('id')
+            ->tap(fn ($q) => $sort->apply($q))
             ->paginate(PerPage::for($request->user()))->withQueryString();
 
         $paymentStates = app(PaymentService::class)->summaries(
@@ -65,7 +76,7 @@ class InvoiceController extends Controller
         );
 
         return view('invoices.index', [
-            'paymentStates' => $paymentStates,
+            'paymentStates' => $paymentStates, 'sort' => $sort, 'dateFrom' => $dateFrom, 'dateTo' => $dateTo,
             'invoices' => $invoices, 'search' => $search, 'type' => $type, 'status' => $status,
         ]);
     }

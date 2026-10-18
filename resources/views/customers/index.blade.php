@@ -16,7 +16,16 @@
 --}}@extends('layouts.app')
 @section('title', __('messages.nav.customers'))
 @section('content')
-    <h1>{{ __('messages.nav.customers') }}</h1>
+    <div class="page-head">
+        <h1>{{ __('messages.nav.customers') }}</h1>
+        @can('edit-master-data')
+            <div class="head-actions">
+                <a class="btn secondary" href="{{ route('customers.export', request()->query()) }}">{{ __('messages.customer_export.button') }}</a>
+                <a class="btn secondary" href="{{ route('customers.import') }}">{{ __('messages.customer_import.button') }}</a>
+                <a class="btn" href="{{ route('customers.create') }}">{{ __('messages.customers.new') }}</a>
+            </div>
+        @endcan
+    </div>
     <div class="toolbar">
         <form method="GET" action="{{ route('customers.index') }}">
             <input type="text" name="q" value="{{ $search }}" placeholder="{{ __('messages.search') }}">
@@ -49,43 +58,46 @@
             @if(count($tags))
                 <select name="tag" aria-label="{{ __('messages.customers.tags') }}">
                     <option value="">{{ __('messages.filter.tag_all') }}</option>
+                    <option value="{{ \App\Support\CustomerFilter::NO_TAG }}" @selected($filters['tag'] === \App\Support\CustomerFilter::NO_TAG)>{{ __('messages.filter.tag_none') }}</option>
                     @foreach($tags as $tag)
                         <option value="{{ $tag }}" @selected($filters['tag'] === $tag)>{{ $tag }}</option>
                     @endforeach
                 </select>
             @endif
+            @php($untilMode = $filters['until'])
+            <x-range-filter :label="__('messages.customers.customer_until')" :from="$filters['until_from']" :to="$filters['until_to']"
+                            :on="$untilMode !== '' || $filters['until_from'] !== '' || $filters['until_to'] !== ''"
+                            :text="$untilMode !== '' ? __('messages.filter.until_'.$untilMode) : null"
+                            :presets="\App\Support\DateRangeFilter::untilPresets($untilMode)"
+                            from-key="until_from" to-key="until_to" :clear="['until']" route="customers.index"/>
             <button class="btn secondary" type="submit">{{ __('messages.search') }}</button>
             @if($filtered)
                 <a class="btn secondary" href="{{ route('customers.index') }}">{{ __('messages.filter.reset') }}</a>
             @endif
         </form>
-        <span class="spacer"></span>
-        @can('edit-master-data')
-            <a class="btn secondary" href="{{ route('customers.export', request()->query()) }}">{{ __('messages.customer_export.button') }}</a>
-            <a class="btn secondary" href="{{ route('customers.import') }}">{{ __('messages.customer_import.button') }}</a>
-            <a class="btn" href="{{ route('customers.create') }}">{{ __('messages.customers.new') }}</a>
-        @endcan
     </div>
 
-    <table>
+    <table class="customers-table">
         <thead>
         <tr>
-            <th>{{ __('messages.customers.number') }}</th>
-            <th>{{ __('messages.customers.company') }}</th>
-            <th>{{ __('messages.customers.city') }}</th>
-            <th>{{ __('messages.customers.email') }}</th>
-            <th>{{ __('messages.customers.status') }}</th>
+            <x-th-sort :sort="$sort" col="number">{{ __('messages.customers.col_number') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="company">{{ __('messages.customers.col_company') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="city">{{ __('messages.customers.city') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="email">{{ __('messages.customers.col_email') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="until">{{ __('messages.customers.col_until') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="status">{{ __('messages.customers.status') }}</x-th-sort>
             <th></th>
         </tr>
         </thead>
         <tbody>
         @forelse($customers as $customer)
             <tr>
-                <td>{{ $customer->customer_number }}</td>
+                <td class="nowrap">{{ $customer->customer_number }}</td>
                 <td>{{ $customer->company }}<div class="muted">{{ $customer->contactLine() }}</div>
                     @if($customer->website)<div class="muted"><a href="{{ $customer->website }}" target="_blank" rel="noopener noreferrer">{{ preg_replace('#^https?://(www\.)?#i', '', rtrim($customer->website, '/')) }}</a></div>@endif</td>
                 <td>{{ $customer->zip }} {{ $customer->city }}</td>
-                <td>{{ $customer->email }}</td>
+                <td class="email-col">{{ $customer->email }}</td>
+                <td class="nowrap">{{ $customer->customer_until?->format('d.m.Y') }}</td>
                 <td>
                     @if($customer->active)
                         <span class="badge ok">{{ __('messages.filter.active') }}</span>
@@ -93,24 +105,26 @@
                         <span class="badge">{{ __('messages.filter.inactive') }}</span>
                     @endif
                     @if($customer->tags)<div class="muted">{{ $customer->tags }}</div>@endif
-                    @if($customer->customer_until)<div class="muted">{{ __('messages.customers.until_short', ['date' => $customer->customer_until->format('d.m.Y')]) }}</div>@endif
                 </td>
                 <td class="actions">
-                    <a class="btn small secondary" href="{{ route('customers.edit', $customer) }}">{{ __('messages.edit') }}</a>
-                    @can('delete-master-data')
-                        <form method="POST" action="{{ route('customers.destroy', $customer) }}"
-                              onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn small danger" type="submit">{{ __('messages.delete') }}</button>
-                        </form>
-                    @endcan
+                    <div class="icon-actions">
+                        <x-icon-btn kind="edit" :href="route('customers.edit', $customer)"/>
+                        @can('delete-master-data')
+                            <form method="POST" action="{{ route('customers.destroy', $customer) }}"
+                                  onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
+                                @csrf
+                                @method('DELETE')
+                                <x-icon-btn kind="delete"/>
+                            </form>
+                        @endcan
+                    </div>
                 </td>
             </tr>
         @empty
-            <tr><td colspan="6" class="muted">{{ __('messages.customers.empty') }}</td></tr>
+            <tr><td colspan="7" class="muted">{{ __('messages.customers.empty') }}</td></tr>
         @endforelse
         </tbody>
     </table>
     @include('pagination.footer', ['paginator' => $customers, 'id' => 'customers'])
+
 @endsection

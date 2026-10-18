@@ -123,6 +123,13 @@ class CustomerExportController extends Controller
         if (($filters['status'] ?? '') !== '') {
             $parts[] = __('messages.customers.status').': '.__('messages.filter.'.$filters['status']);
         }
+        if (in_array($filters['until'] ?? '', ['none', 'expired'], true)) {
+            $parts[] = __('messages.customers.customer_until').': '.__('messages.filter.until_'.$filters['until']);
+        }
+        if (($filters['until_from'] ?? '') !== '' || ($filters['until_to'] ?? '') !== '') {
+            $parts[] = __('messages.customers.customer_until').': '.(($filters['until_from'] ?? '') !== '' ? date('d.m.Y', strtotime($filters['until_from'])) : '…')
+                .' – '.(($filters['until_to'] ?? '') !== '' ? date('d.m.Y', strtotime($filters['until_to'])) : '…');
+        }
         if (($filters['tag'] ?? '') !== '') {
             $parts[] = __('messages.customers.tags').': '.$filters['tag'];
         }

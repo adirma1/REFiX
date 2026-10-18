@@ -25,9 +25,9 @@
     <table>
         <thead>
         <tr>
-            <th>{{ __('messages.tenants.name') }}</th>
-            <th>{{ __('messages.tenants.city') }}</th>
-            <th>{{ __('messages.tenants.mode') }}</th>
+            <x-th-sort :sort="$sort" col="name">{{ __('messages.tenants.name') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="city">{{ __('messages.tenants.city') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="mode">{{ __('messages.tenants.mode') }}</x-th-sort>
             <th></th>
         </tr>
         </thead>
@@ -46,7 +46,7 @@
                     @endif
                 </td>
                 <td class="actions">
-                    <a class="btn small secondary" href="{{ route('tenants.edit', $tenant) }}">{{ __('messages.edit') }}</a>
+                    <div class="icon-actions"><x-icon-btn kind="edit" :href="route('tenants.edit', $tenant)"/></div>
                 </td>
             </tr>
         @endforeach

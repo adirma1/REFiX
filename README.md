@@ -12,7 +12,7 @@ RE-FiX läuft als Docker-Stack (Laravel 12, PHP 8.3, MariaDB) und ist für klein
 - **Versand per E-Mail:** Rechnungen, Gutschriften, Angebote und Mahnungen verschickst du direkt aus RE-FiX.
 - **Wiederkehrende Rechnungen:** monatlich, vierteljährlich oder jährlich, einfach einzurichten und automatisch als Entwurf erzeugt.
 
-Version 1.4.0 · Lizenz GPL-2.0 · Autor Martin Adirsch
+Version 1.5.0 · Lizenz GPL-2.0 · Autor Martin Adirsch
 
 ## Inhalt
 

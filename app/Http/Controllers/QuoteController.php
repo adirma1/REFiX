@@ -26,6 +26,8 @@ use App\Models\Tenant;
 use App\Services\InvoiceCalculator;
 use App\Services\QuotePdf;
 use App\Services\QuoteService;
+use App\Support\DateRangeFilter;
+use App\Support\ListSort;
 use App\Support\PerPage;
 use App\Support\Tenancy;
 use Illuminate\Http\RedirectResponse;
@@ -45,9 +47,21 @@ class QuoteController extends Controller
         $search = trim((string) $request->query('q'));
         $status = (string) $request->query('status');
 
+        [$dateFrom, $dateTo] = DateRangeFilter::fromRequest($request);
+        [$validFrom, $validTo] = DateRangeFilter::fromRequest($request, 'valid');
+
+        $sort = ListSort::make($request, 'quotes', [
+            'number' => 'number', 'customer' => ListSort::byCustomer('quotes'), 'date' => 'issue_date',
+            'valid_until' => 'valid_until', 'gross' => 'gross_total', 'status' => 'status',
+        ], ['date', 'desc'], [['id', 'desc']]);
+
         $quotes = Quote::query()->with('customer')
             ->when($status === 'expired', fn ($q) => $q->where('status', Quote::STATUS_OPEN)->whereDate('valid_until', '<', now()->toDateString()))
             ->when(in_array($status, Quote::STATUSES, true), fn ($q) => $q->where('status', $status))
+            ->when($dateFrom !== '', fn ($q) => $q->whereDate('issue_date', '>=', $dateFrom))
+            ->when($dateTo !== '', fn ($q) => $q->whereDate('issue_date', '<=', $dateTo))
+            ->when($validFrom !== '', fn ($q) => $q->whereDate('valid_until', '>=', $validFrom))
+            ->when($validTo !== '', fn ($q) => $q->whereDate('valid_until', '<=', $validTo))
             ->when($search !== '', function ($query) use ($search) {
                 $like = '%'.$search.'%';
                 $query->where(function ($q) use ($like) {
@@ -55,10 +69,10 @@ class QuoteController extends Controller
                         ->orWhereHas('customer', fn ($c) => $c->where('company', 'like', $like)->orWhere('customer_number', 'like', $like));
                 });
             })
-            ->orderByDesc('issue_date')->orderByDesc('id')
+            ->tap(fn ($q) => $sort->apply($q))
             ->paginate(PerPage::for($request->user()))->withQueryString();
 
-        return view('quotes.index', ['quotes' => $quotes, 'search' => $search, 'status' => $status]);
+        return view('quotes.index', ['dateFrom' => $dateFrom, 'dateTo' => $dateTo, 'validFrom' => $validFrom, 'validTo' => $validTo, 'sort' => $sort, 'quotes' => $quotes, 'search' => $search, 'status' => $status]);
     }
 
     public function create(Request $request): View

@@ -75,6 +75,70 @@ class ListFilterTest extends TestCase
             ->assertSee('Firma 1 GmbH')->assertSee('Firma 3 GmbH')->assertDontSee('Max Muster');
     }
 
+    public function test_customers_filter_without_tag(): void
+    {
+        $this->customer('1', ['tags' => 'vip']);
+        $this->customer('2', ['tags' => null]);
+        $this->customer('3', ['tags' => '  ']);
+
+        $this->get(route('customers.index', ['tag' => '__none']))
+            ->assertSee('Firma 2 GmbH')->assertSee('Firma 3 GmbH')->assertDontSee('Firma 1 GmbH');
+        $this->get(route('customers.index', ['tag' => 'vip']))
+            ->assertSee('Firma 1 GmbH')->assertDontSee('Firma 2 GmbH');
+    }
+
+    public function test_dashboard_untagged_row_links_to_the_no_tag_filter(): void
+    {
+        $this->customer('1', ['tags' => 'vip']);
+        $this->customer('2', ['tags' => null]);
+
+        $this->get(route('dashboard'))->assertSee('tag=__none', false);
+    }
+
+    public function test_customers_filter_by_customer_until_range(): void
+    {
+        $this->customer('1', ['customer_until' => '2026-03-31']);
+        $this->customer('2', ['customer_until' => '2026-12-31']);
+        $this->customer('3', ['customer_until' => '2027-01-01']);
+        $this->customer('4', ['customer_until' => null]);
+
+        // Ganzes Jahr, Grenzen inklusive; Kunden ohne Enddatum erscheinen dann nicht.
+        $this->get(route('customers.index', ['until_from' => '2026-01-01', 'until_to' => '2026-12-31']))
+            ->assertSee('Firma 1 GmbH')->assertSee('Firma 2 GmbH')->assertDontSee('Firma 3 GmbH')->assertDontSee('Firma 4 GmbH');
+        // Nur eine Grenze.
+        $this->get(route('customers.index', ['until_from' => '2026-12-31']))
+            ->assertSee('Firma 2 GmbH')->assertSee('Firma 3 GmbH')->assertDontSee('Firma 1 GmbH');
+        $this->get(route('customers.index', ['until_to' => '2026-03-31']))
+            ->assertSee('Firma 1 GmbH')->assertDontSee('Firma 2 GmbH');
+        // Ungültiges Datum wird ignoriert.
+        $this->get(route('customers.index', ['until_from' => 'morgen']))->assertSee('Firma 4 GmbH');
+        // Schnellwahl „Dieses Jahr“ im Menü: Januar bis Dezember des laufenden Jahres.
+        $this->get(route('customers.index'))->assertSee('until_from=2026-01-01', false)->assertSee('until_to=2026-12-31', false);
+    }
+
+    public function test_customers_until_quick_filters_and_button_label(): void
+    {
+        // heute: 11.10.2026
+        $this->customer('1', ['customer_until' => '2026-10-10']);
+        $this->customer('2', ['customer_until' => '2026-10-11']);
+        $this->customer('3', ['customer_until' => '2026-12-31']);
+        $this->customer('4', ['customer_until' => null]);
+
+        $this->get(route('customers.index', ['until' => 'expired']))
+            ->assertSee('Firma 1 GmbH')->assertDontSee('Firma 2 GmbH')->assertDontSee('Firma 3 GmbH')->assertDontSee('Firma 4 GmbH');
+        $this->get(route('customers.index', ['until' => 'none']))
+            ->assertSee('Firma 4 GmbH')->assertDontSee('Firma 1 GmbH')->assertDontSee('Firma 3 GmbH');
+        $this->get(route('customers.index', ['until' => 'bogus']))->assertSee('Firma 4 GmbH')->assertSee('Firma 1 GmbH');
+
+        // Der Knopf zeigt die Auswahl; ohne Filter nur die Bezeichnung und kein „zurücksetzen“-Kreuz.
+        $this->get(route('customers.index'))->assertDontSee('dd-x', false);
+        $this->get(route('customers.index', ['until_from' => '2026-01-01', 'until_to' => '2026-12-31']))
+            ->assertSee('Kunde bis: 2026', false)->assertSee('dd-x', false);
+        $this->get(route('customers.index', ['until_from' => '2026-03-01', 'until_to' => '2026-05-31']))
+            ->assertSee('Kunde bis: 01.03.2026–31.05.2026', false);
+        $this->get(route('customers.index', ['until' => 'none']))->assertSee('Kunde bis: Ohne Enddatum', false);
+    }
+
     public function test_customers_search_covers_name_street_and_zip(): void
     {
         $this->customer('1', ['first_name' => 'Hubertus', 'last_name' => 'Zobel', 'street' => 'Lindenallee 9', 'zip' => '48143']);

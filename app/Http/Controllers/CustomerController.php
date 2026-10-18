@@ -25,6 +25,7 @@ use App\Services\NumberGenerator;
 use App\Support\CustomerFilter;
 use App\Support\CustomerRules;
 use App\Support\ListFilter;
+use App\Support\ListSort;
 use App\Support\Tenancy;
 use App\Support\PerPage;
 use Illuminate\Http\RedirectResponse;
@@ -39,12 +40,20 @@ class CustomerController extends Controller
         $options = CustomerFilter::options();
         ['search' => $search, 'filters' => $filters] = CustomerFilter::fromRequest($request, $options);
 
+        $sort = ListSort::make($request, 'customers', [
+            'number' => 'customer_number',
+            'company' => fn ($q, $dir) => $q->orderByRaw("coalesce(nullif(company, ''), last_name, '') {$dir}"),
+            'city' => fn ($q, $dir) => $q->orderBy('zip', $dir)->orderBy('city', $dir),
+            'email' => 'email', 'until' => 'customer_until', 'status' => 'active',
+        ], ['number', 'asc'], [['id', 'asc']]);
+
         $customers = CustomerFilter::query($search, $filters)
+            ->reorder()->tap(fn ($q) => $sort->apply($q))
             ->paginate(PerPage::for($request->user()))
             ->withQueryString();
 
         return view('customers.index', [
-            'customers' => $customers, 'search' => $search, 'filters' => $filters,
+            'sort' => $sort, 'customers' => $customers, 'search' => $search, 'filters' => $filters,
             'countries' => $options['countries'], 'currencies' => $options['currencies'], 'tags' => $options['tags'],
             'filtered' => ListFilter::active($filters + ['q' => $search]),
         ]);

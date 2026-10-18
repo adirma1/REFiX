@@ -25,6 +25,7 @@ use App\Services\InvoicePdf;
 use App\Services\Layout\LayoutInvalid;
 use App\Services\Layout\LayoutPrompt;
 use App\Services\Layout\LayoutService;
+use App\Support\ListSort;
 use App\Support\Tenancy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -48,6 +49,11 @@ class LayoutController extends Controller
         $tenant = Tenant::findOrFail(Tenancy::id());
         $versions = LayoutVersion::query()->where('kind', $kind)->with('creator:id,name')->orderByDesc('version')->get();
 
+        $sort = ListSort::make($request, 'layouts.'.$kind, [
+            'version' => 'version', 'name' => 'name', 'created' => 'created_at',
+            'status' => fn ($v) => (int) $v->is_active,
+        ], ['version', 'desc']);
+
         // Vorbelegung des Formulars: aus einer vorhandenen Version oder dem Standard-Layout
         $prefill = null;
         if ($request->query('standard')) {
@@ -60,7 +66,8 @@ class LayoutController extends Controller
         return view('layouts-admin.index', [
             'kind' => $kind,
             'tenant' => $tenant,
-            'versions' => $versions,
+            'sort' => $sort,
+            'versions' => $sort->sortCollection($versions),
             'active' => $versions->firstWhere('is_active', true),
             'wishes' => $tenant->{$this->wishesColumn($kind)},
             'prompt' => LayoutPrompt::build($tenant->{$this->wishesColumn($kind)}, $tenant->name, $kind),

@@ -16,7 +16,15 @@
 --}}@extends('layouts.app')
 @section('title', __('messages.nav.articles'))
 @section('content')
-    <h1>{{ __('messages.nav.articles') }}</h1>
+    <div class="page-head">
+        <h1>{{ __('messages.nav.articles') }}</h1>
+        @can('edit-master-data')
+            <div class="head-actions">
+                <a class="btn secondary" href="{{ route('articles.import') }}">{{ __('messages.article_import.button') }}</a>
+                <a class="btn" href="{{ route('articles.create') }}">{{ __('messages.articles.new') }}</a>
+            </div>
+        @endcan
+    </div>
     <div class="toolbar">
         <form method="GET" action="{{ route('articles.index') }}">
             <input type="text" name="q" value="{{ $search }}" placeholder="{{ __('messages.search') }}">
@@ -46,21 +54,16 @@
                 <a class="btn secondary" href="{{ route('articles.index') }}">{{ __('messages.filter.reset') }}</a>
             @endif
         </form>
-        <span class="spacer"></span>
-        @can('edit-master-data')
-            <a class="btn secondary" href="{{ route('articles.import') }}">{{ __('messages.article_import.button') }}</a>
-            <a class="btn" href="{{ route('articles.create') }}">{{ __('messages.articles.new') }}</a>
-        @endcan
     </div>
 
     <table>
         <thead>
         <tr>
-            <th>{{ __('messages.articles.number') }}</th>
-            <th>{{ __('messages.articles.name') }}</th>
-            <th>{{ __('messages.articles.unit') }}</th>
-            <th class="num">{{ __('messages.articles.tax_rate') }}</th>
-            <th class="num">{{ __('messages.articles.current_price') }}</th>
+            <x-th-sort :sort="$sort" col="number">{{ __('messages.articles.number') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="name">{{ __('messages.articles.name') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="unit">{{ __('messages.articles.unit') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="tax" class="num">{{ __('messages.articles.tax_rate') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="price" class="num">{{ __('messages.articles.current_price') }}</x-th-sort>
             <th></th>
         </tr>
         </thead>

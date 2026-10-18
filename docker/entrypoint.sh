@@ -40,6 +40,10 @@ if [ -z "$APP_KEY" ]; then
     fi
 fi
 
+# Zwischengespeicherte (kompilierte) Seiten verwerfen: Sie liegen im Storage-Volume und überleben ein Update.
+# Haben die neuen Dateien einen älteren Zeitstempel als der Zwischenspeicher, würde sonst die alte Seite gezeigt.
+rm -f storage/framework/views/*.php
+
 chown -R www-data:www-data storage bootstrap/cache
 
 php artisan package:discover --ansi || true

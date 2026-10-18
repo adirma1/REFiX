@@ -22,6 +22,8 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Services\BackupService;
 use Illuminate\Http\RedirectResponse;
+use App\Support\ListSort;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -32,12 +34,17 @@ class BackupController extends Controller
 {
     public function __construct(private BackupService $backups) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('manage-users');
 
+        $sort = ListSort::make($request, 'backups', [
+            'default' => fn () => 0, 'file' => 'name', 'created' => 'created', 'size' => 'size',
+        ], ['default', 'asc']);
+
         return view('backups.index', [
-            'backups' => $this->backups->list(),
+            'sort' => $sort,
+            'backups' => $sort->sortCollection(collect($this->backups->list())),
             'fingerprint' => BackupService::keyFingerprint(),
         ]);
     }

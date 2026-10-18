@@ -22,6 +22,7 @@ namespace App\Http\Controllers;
 use App\Models\AuditLog;
 use App\Models\MailAccount;
 use App\Services\Mail\MailSender;
+use App\Support\ListSort;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -33,12 +34,17 @@ use Throwable;
 /** SMTP-Zugänge verwalten (nur Admin). Die Zugänge gelten mandantenübergreifend; Mandanten wählen einen aus. */
 class MailAccountController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('manage-users');
 
+        $sort = ListSort::make($request, 'mail-accounts', [
+            'name' => 'name', 'server' => 'host', 'from' => 'from_address', 'bcc' => 'bcc', 'used_by' => 'tenants_count',
+        ], ['name', 'asc'], [['id', 'asc']]);
+
         return view('mail-accounts.index', [
-            'accounts' => MailAccount::query()->withCount('tenants')->orderBy('name')->get(),
+            'sort' => $sort,
+            'accounts' => MailAccount::query()->withCount('tenants')->tap(fn ($q) => $sort->apply($q))->get(),
         ]);
     }
 

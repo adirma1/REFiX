@@ -22,6 +22,7 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\Customer;
 use App\Support\ListFilter;
+use App\Support\ListSort;
 use App\Support\Tenancy;
 use App\Support\PerPage;
 use Illuminate\Http\RedirectResponse;
@@ -47,6 +48,16 @@ class ArticleController extends Controller
             'price' => ListFilter::pick($request, 'price', ['none']),
         ];
 
+        $today = now()->toDateString();
+        $sort = ListSort::make($request, 'articles', [
+            'number' => 'article_number', 'name' => 'name', 'unit' => 'unit', 'tax' => 'tax_rate',
+            // Wie die Spalte „Preis“: Standardpreis in EUR, gültig ab heute oder früher.
+            'price' => fn ($q, $dir) => $q->orderByRaw(
+                "(select amount from article_prices where article_prices.article_id = articles.id and article_prices.currency = 'EUR' "
+                ."and article_prices.customer_id is null and date(article_prices.valid_from) <= ? "
+                ."order by article_prices.valid_from desc, article_prices.id desc limit 1) {$dir}", [$today]),
+        ], ['name', 'asc'], [['id', 'asc']]);
+
         $articles = Article::query()
             ->when($search !== '', function ($query) use ($search) {
                 $like = '%'.$search.'%';
@@ -62,7 +73,7 @@ class ArticleController extends Controller
             // Wie die Spalte „Preis“: Standardpreis in EUR, gültig ab heute oder früher.
             ->when($filters['price'] === 'none', fn ($q) => $q->whereDoesntHave('prices', fn ($p) => $p
                 ->where('currency', 'EUR')->whereNull('customer_id')->whereDate('valid_from', '<=', now()->toDateString())))
-            ->orderBy('name')
+            ->tap(fn ($q) => $sort->apply($q))
             ->paginate(PerPage::for($request->user()))
             ->withQueryString();
 
@@ -72,7 +83,7 @@ class ArticleController extends Controller
         );
 
         return view('articles.index', [
-            'articles' => $articles, 'search' => $search, 'current' => $current, 'filters' => $filters,
+            'sort' => $sort, 'articles' => $articles, 'search' => $search, 'current' => $current, 'filters' => $filters,
             'units' => $units, 'taxRates' => $taxRates,
             'filtered' => ListFilter::active($filters + ['q' => $search]),
         ]);

@@ -22,10 +22,10 @@
     <table>
         <thead>
         <tr>
-            <th>{{ __('messages.invoices.type') }}</th>
-            <th>{{ __('messages.numbering.format') }}</th>
-            <th>{{ __('messages.numbering.last') }}</th>
-            <th>{{ __('messages.numbering.next') }}</th>
+            <x-th-sort :sort="$sort" col="type">{{ __('messages.invoices.type') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="format">{{ __('messages.numbering.format') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="last">{{ __('messages.numbering.last') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="next">{{ __('messages.numbering.next') }}</x-th-sort>
             <th>{{ __('messages.numbering.set_last') }}</th>
         </tr>
         </thead>

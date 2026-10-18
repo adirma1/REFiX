@@ -23,6 +23,8 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\PaymentInvalid;
 use App\Services\PaymentService;
+use App\Support\DateRangeFilter;
+use App\Support\ListSort;
 use App\Support\PerPage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -50,8 +52,16 @@ class PaymentController extends Controller
             'overdue_count' => $all->filter(fn ($row) => $row['summary']['overdue'])->count(),
         ];
 
+        [$dueFrom, $dueTo] = DateRangeFilter::fromRequest($request, 'due');
+
         $rows = $all
             ->when($filter === 'overdue', fn ($c) => $c->filter(fn ($row) => $row['summary']['overdue']))
+            // Fällig am im Zeitraum (Grenzen inklusive); Rechnungen ohne Fälligkeitsdatum fallen heraus, sobald ein Zeitraum gesetzt ist.
+            ->when($dueFrom !== '' || $dueTo !== '', fn ($c) => $c->filter(function ($row) use ($dueFrom, $dueTo) {
+                $due = $row['invoice']->due_date?->toDateString();
+
+                return $due !== null && ($dueFrom === '' || $due >= $dueFrom) && ($dueTo === '' || $due <= $dueTo);
+            }))
             ->when($search !== '', function ($c) use ($search) {
                 $needle = mb_strtolower($search);
 
@@ -60,6 +70,19 @@ class PaymentController extends Controller
                     || str_contains(mb_strtolower((string) ($row['invoice']->customer_snapshot['customer_number'] ?? '')), $needle));
             })
             ->values();
+
+        // Ohne Klick bleibt die Reihenfolge aus openItems(); die Sortierung gilt für alle Seiten.
+        $sort = ListSort::make($request, 'payments', [
+            'default' => fn () => 0,
+            'number' => fn (array $r) => $r['invoice']->number,
+            'customer' => fn (array $r) => $r['invoice']->customer_snapshot['company'] ?? '',
+            'due' => fn (array $r) => $r['invoice']->due_date?->timestamp ?? PHP_INT_MAX,
+            'gross' => fn (array $r) => $r['summary']['gross'],
+            'paid' => fn (array $r) => $r['summary']['paid'] + $r['summary']['discount'] + $r['summary']['credited'],
+            'open' => fn (array $r) => $r['summary']['open'],
+            'status' => fn (array $r) => $r['summary']['status'],
+        ], ['default', 'asc']);
+        $rows = $sort->sortCollection($rows);
 
         $perPage = PerPage::for($request->user());
         $page = LengthAwarePaginator::resolveCurrentPage();
@@ -70,7 +93,7 @@ class PaymentController extends Controller
         );
 
         return view('payments.index', [
-            'rows' => $paginator, 'totals' => $totals, 'filter' => $filter, 'search' => $search,
+            'sort' => $sort, 'dueFrom' => $dueFrom, 'dueTo' => $dueTo, 'rows' => $paginator, 'totals' => $totals, 'filter' => $filter, 'search' => $search,
         ]);
     }
 

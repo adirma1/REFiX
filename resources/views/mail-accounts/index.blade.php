@@ -29,11 +29,11 @@
         <table class="wrap-cells">
             <thead>
             <tr>
-                <th>{{ __('messages.mail_accounts.name') }}</th>
-                <th>{{ __('messages.mail_accounts.server') }}</th>
-                <th>{{ __('messages.mail_accounts.from_address') }}</th>
-                <th>{{ __('messages.mail_accounts.bcc') }}</th>
-                <th>{{ __('messages.mail_accounts.used_by') }}</th>
+                <x-th-sort :sort="$sort" col="name">{{ __('messages.mail_accounts.name') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="server">{{ __('messages.mail_accounts.server') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="from">{{ __('messages.mail_accounts.from_address') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="bcc">{{ __('messages.mail_accounts.bcc') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="used_by">{{ __('messages.mail_accounts.used_by') }}</x-th-sort>
                 <th></th>
             </tr>
             </thead>
@@ -46,12 +46,14 @@
                     <td>{{ $account->bcc ?: '–' }}</td>
                     <td>{{ $account->tenants_count }}</td>
                     <td class="actions">
-                        <a class="btn small secondary" href="{{ route('mail-accounts.edit', $account) }}">{{ __('messages.edit') }}</a>
-                        <form method="POST" action="{{ route('mail-accounts.destroy', $account) }}" onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn small danger" type="submit">{{ __('messages.delete') }}</button>
-                        </form>
+                        <div class="icon-actions">
+                            <x-icon-btn kind="edit" :href="route('mail-accounts.edit', $account)"/>
+                            <form method="POST" action="{{ route('mail-accounts.destroy', $account) }}" onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
+                                @csrf
+                                @method('DELETE')
+                                <x-icon-btn kind="delete"/>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             @endforeach

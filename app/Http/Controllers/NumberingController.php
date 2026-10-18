@@ -24,6 +24,7 @@ use App\Models\Invoice;
 use App\Models\Quote;
 use App\Models\Tenant;
 use App\Services\NumberGenerator;
+use App\Support\ListSort;
 use App\Support\Tenancy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ use Illuminate\View\View;
 /** Zählerstände der Nummernkreise einsehen und setzen (z. B. Übernahme aus dem Altprogramm). */
 class NumberingController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('manage-users');
 
@@ -68,7 +69,18 @@ class NumberingController extends Controller
             'next_number' => NumberGenerator::peekCustomerNumber($tenant),
         ];
 
-        return view('numbering.index', ['rows' => $rows, 'tenant' => $tenant]);
+        // Ohne Klick bleibt die feste Reihenfolge; „Art“ sortiert nach der angezeigten Bezeichnung.
+        $sort = ListSort::make($request, 'numbering', [
+            'default' => fn () => 0,
+            'type' => fn (array $r) => match ($r['type']) {
+                'customer' => __('messages.numbering.customers'), 'invoice' => __('messages.invoices.invoice'),
+                'quote' => __('messages.quotes.title_single'), default => __('messages.invoices.credit_note'),
+            }.($r['is_test'] ? '~' : ''),
+            'format' => fn (array $r) => $r['format'] ?? '', 'last' => fn (array $r) => $r['last_number'] ?? '',
+            'next' => fn (array $r) => $r['next_number'],
+        ], ['default', 'asc']);
+
+        return view('numbering.index', ['sort' => $sort, 'rows' => $sort->sortCollection(collect($rows)), 'tenant' => $tenant]);
     }
 
     public function update(Request $request): RedirectResponse

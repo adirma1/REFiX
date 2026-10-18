@@ -192,5 +192,7 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 
         Route::get('/audit', [AuditController::class, 'index'])->name('audit.index');
+        Route::get('/audit/export', [AuditController::class, 'export'])->name('audit.export');
+        Route::delete('/audit', [AuditController::class, 'clear'])->name('audit.clear');
     });
 });

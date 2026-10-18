@@ -17,8 +17,10 @@
 @section('title', __('messages.bank.title'))
 @section('content')
     @php($money = fn ($v) => number_format((float) $v, 2, ',', '.'))
-    <h1>{{ __('messages.bank.title') }}</h1>
-    @include('payments._tabs')
+    <div class="page-head">
+        <h1>{{ __('messages.bank.title') }}</h1>
+        @include('payments._tabs')
+    </div>
 
     <div class="card">
         <form method="POST" action="{{ route('bank.upload') }}" enctype="multipart/form-data" style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
@@ -63,10 +65,10 @@
                 <thead>
                 <tr>
                     <th class="pick-col"><input type="checkbox" class="pick-all" aria-label="{{ __('messages.bank.select_all') }}"></th>
-                    <th>{{ __('messages.bank.date') }}</th>
-                    <th>{{ __('messages.bank.counterparty') }}</th>
-                    <th>{{ __('messages.bank.purpose') }}</th>
-                    <th class="num">{{ __('messages.payments.amount') }}</th>
+                    <x-th-sort :sort="$sort" col="date">{{ __('messages.bank.date') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="counterparty">{{ __('messages.bank.counterparty') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="purpose">{{ __('messages.bank.purpose') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="amount" class="num">{{ __('messages.payments.amount') }}</x-th-sort>
                     <th>{{ __('messages.bank.assign') }}</th>
                 </tr>
                 </thead>
@@ -115,11 +117,11 @@
             <thead>
             <tr>
                 <th class="pick-col"></th>
-                <th>{{ __('messages.bank.date') }}</th>
-                <th>{{ __('messages.bank.counterparty') }}</th>
-                <th>{{ __('messages.bank.purpose') }}</th>
-                <th class="num">{{ __('messages.payments.amount') }}</th>
-                @if($tab === 'booked')<th>{{ __('messages.invoices.number') }}</th>@endif
+                <x-th-sort :sort="$sort" col="date">{{ __('messages.bank.date') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="counterparty">{{ __('messages.bank.counterparty') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="purpose">{{ __('messages.bank.purpose') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="amount" class="num">{{ __('messages.payments.amount') }}</x-th-sort>
+                @if($tab === 'booked')<x-th-sort :sort="$sort" col="number">{{ __('messages.invoices.number') }}</x-th-sort>@endif
             </tr>
             </thead>
             <tbody>

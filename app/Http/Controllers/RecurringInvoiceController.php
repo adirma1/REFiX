@@ -27,6 +27,7 @@ use App\Models\Tenant;
 use App\Services\InvoiceCalculator;
 use App\Services\RecurringService;
 use App\Support\ListFilter;
+use App\Support\ListSort;
 use App\Support\Tenancy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,13 @@ class RecurringInvoiceController extends Controller
         // „Beendet“ = Enddatum gesetzt und der nächste Stichtag liegt dahinter (siehe RecurringInvoice::isFinished()).
         $notFinished = fn ($q) => $q->where(fn ($w) => $w->whereNull('end_date')->orWhereColumn('next_date', '<=', 'end_date'));
 
+        // Ohne Klick: aktive Vorlagen zuerst, dann nach nächstem Stichtag.
+        $sort = ListSort::make($request, 'recurring', [
+            'default' => fn ($q) => $q->orderByDesc('active')->orderBy('next_date'),
+            'name' => 'name', 'customer' => ListSort::byCustomer('recurring_invoices'), 'interval' => 'interval',
+            'next_date' => 'next_date', 'end_date' => 'end_date', 'drafts' => 'drafts_count', 'status' => 'active',
+        ], ['default', 'asc'], [['id', 'asc']]);
+
         $recurrings = RecurringInvoice::query()->with('customer')
             ->withCount(['invoices as drafts_count' => fn ($q) => $q->where('status', Invoice::STATUS_DRAFT)])
             ->when($search !== '', function ($query) use ($search) {
@@ -66,11 +74,11 @@ class RecurringInvoiceController extends Controller
             ->when($filters['interval'] !== '', fn ($q) => $q->where('interval', $filters['interval']))
             ->when($filters['billing'] !== '', fn ($q) => $q->where('billing', $filters['billing']))
             ->when($filters['drafts'] === '1', fn ($q) => $q->whereHas('invoices', fn ($i) => $i->where('status', Invoice::STATUS_DRAFT)))
-            ->orderByDesc('active')->orderBy('next_date')->orderBy('id')
+            ->tap(fn ($q) => $sort->apply($q))
             ->get();
 
         return view('recurring.index', [
-            'recurrings' => $recurrings, 'search' => $search, 'filters' => $filters,
+            'sort' => $sort, 'recurrings' => $recurrings, 'search' => $search, 'filters' => $filters,
             'filtered' => ListFilter::active($filters + ['q' => $search]),
         ]);
     }

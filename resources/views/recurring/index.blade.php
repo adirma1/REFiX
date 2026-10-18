@@ -16,7 +16,18 @@
 --}}@extends('layouts.app')
 @section('title', __('messages.nav.recurring'))
 @section('content')
-    <h1>{{ __('messages.nav.recurring') }}</h1>
+    <div class="page-head">
+        <h1>{{ __('messages.nav.recurring') }}</h1>
+        @can('edit-invoices')
+            <div class="head-actions">
+                <form method="POST" action="{{ route('recurring.run') }}">
+                    @csrf
+                    <button class="btn secondary" type="submit">{{ __('messages.recurring.run_now') }}</button>
+                </form>
+                <a class="btn" href="{{ route('recurring.create') }}">{{ __('messages.recurring.new') }}</a>
+            </div>
+        @endcan
+    </div>
     <p class="muted">{{ __('messages.recurring.intro') }}</p>
     <div class="toolbar">
         <form method="GET" action="{{ route('recurring.index') }}">
@@ -48,26 +59,18 @@
                 <a class="btn secondary" href="{{ route('recurring.index') }}">{{ __('messages.filter.reset') }}</a>
             @endif
         </form>
-        <span class="spacer"></span>
-        @can('edit-invoices')
-            <form method="POST" action="{{ route('recurring.run') }}">
-                @csrf
-                <button class="btn secondary" type="submit">{{ __('messages.recurring.run_now') }}</button>
-            </form>
-            <a class="btn" href="{{ route('recurring.create') }}">{{ __('messages.recurring.new') }}</a>
-        @endcan
     </div>
 
-    <table>
+    <table class="recurring-table">
         <thead>
         <tr>
-            <th>{{ __('messages.recurring.name') }}</th>
-            <th>{{ __('messages.invoices.customer') }}</th>
-            <th>{{ __('messages.recurring.interval') }}</th>
-            <th>{{ __('messages.recurring.next_date') }}</th>
-            <th>{{ __('messages.recurring.end_date') }}</th>
-            <th>{{ __('messages.recurring.drafts') }}</th>
-            <th>{{ __('messages.invoices.status') }}</th>
+            <x-th-sort :sort="$sort" col="name">{{ __('messages.recurring.name') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="customer">{{ __('messages.invoices.customer') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="interval" class="col-fit">{{ __('messages.recurring.interval') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="next_date" class="col-date">{{ __('messages.recurring.next_date') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="end_date" class="col-date">{{ __('messages.recurring.end_date') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="drafts" class="col-fit num">{{ __('messages.recurring.drafts') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="status" class="col-fit">{{ __('messages.invoices.status') }}</x-th-sort>
         </tr>
         </thead>
         <tbody>
@@ -75,13 +78,13 @@
             @php($state = $recurring->state())
             <tr>
                 <td><a href="{{ route('recurring.edit', $recurring) }}">{{ $recurring->name }}</a></td>
-                <td>{{ $recurring->customer?->company }} <span class="muted">{{ $recurring->customer?->customer_number }}</span>
-                    @if($recurring->customer?->isBlockedFor($recurring->next_date))<span class="badge warn">{{ __('messages.customers.blocked_hint') }}</span>@endif</td>
-                <td>{{ __('messages.recurring.interval_'.$recurring->interval) }}, {{ __('messages.recurring.billing_'.$recurring->billing) }}</td>
-                <td class="nowrap">{{ $recurring->next_date->format('d.m.Y') }}</td>
-                <td class="nowrap">{{ $recurring->end_date?->format('d.m.Y') }}</td>
-                <td class="num">{{ $recurring->drafts_count }}</td>
-                <td><span @class(['badge', 'ok' => $state === 'active', 'warn' => $state === 'paused'])>{{ __('messages.recurring.state_'.$state) }}</span></td>
+                <td>{{ $recurring->customer?->company }} <span class="muted nowrap">{{ $recurring->customer?->customer_number }}</span>
+                    @if($recurring->customer?->isBlockedFor($recurring->next_date))<br><span class="badge warn">{{ __('messages.customers.blocked_hint') }}</span>@endif</td>
+                <td class="col-fit">{{ __('messages.recurring.interval_'.$recurring->interval) }}<br><span class="muted">{{ __('messages.recurring.billing_'.$recurring->billing) }}</span></td>
+                <td class="col-date">{{ $recurring->next_date->format('d.m.Y') }}</td>
+                <td class="col-date">{{ $recurring->end_date?->format('d.m.Y') }}</td>
+                <td class="num col-fit">{{ $recurring->drafts_count }}</td>
+                <td class="col-fit nowrap"><span @class(['badge', 'ok' => $state === 'active', 'warn' => $state === 'paused'])>{{ __('messages.recurring.state_'.$state) }}</span></td>
             </tr>
         @empty
             <tr><td colspan="7" class="muted">{{ __('messages.recurring.empty') }}</td></tr>

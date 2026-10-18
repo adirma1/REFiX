@@ -23,6 +23,7 @@ use App\Models\AuditLog;
 use App\Models\Tenant;
 use App\Models\User;
 use App\Services\PasswordResetService;
+use App\Support\ListSort;
 use App\Support\Tenancy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -39,12 +40,18 @@ use Illuminate\Validation\ValidationException;
  */
 class UserController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $this->authorize('manage-users');
 
+        $sort = ListSort::make($request, 'users', [
+            'name' => 'users.name', 'username' => 'users.username', 'email' => 'users.email',
+            'role' => 'tenant_user.role', 'two_factor' => 'users.two_factor_confirmed_at',
+        ], ['name', 'asc'], [['users.id', 'asc']]);
+
         return view('users.index', [
-            'users' => $this->tenant()->users()->orderBy('name')->get(),
+            'sort' => $sort,
+            'users' => $this->tenant()->users()->tap(fn ($q) => $sort->apply($q))->get(),
             'roles' => config('invoice.roles'),
         ]);
     }

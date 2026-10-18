@@ -26,6 +26,9 @@ use Illuminate\Http\Request;
 /** Suche und Filter der Kundenliste; wird auch vom CSV-Export benutzt, damit beide dieselbe Auswahl meinen. */
 final class CustomerFilter
 {
+    /** Wert des Tag-Filters für Kunden ohne Tag („Ohne Tag“). */
+    public const NO_TAG = '__none';
+
     /** Alle vorkommenden Werte für die Auswahlfelder (Land, Währung, Tags). */
     public static function options(): array
     {
@@ -57,7 +60,10 @@ final class CustomerFilter
                 'currency' => ListFilter::pick($request, 'currency', $options['currencies']),
                 'ref' => ListFilter::pick($request, 'ref', ['1']),
                 'status' => ListFilter::pick($request, 'status', ['active', 'inactive']),
-                'tag' => ListFilter::pick($request, 'tag', $options['tags']),
+                'tag' => ListFilter::pick($request, 'tag', array_merge($options['tags'], [self::NO_TAG])),
+                'until' => ListFilter::pick($request, 'until', ['none', 'expired']),
+                'until_from' => DateRangeFilter::date($request->query('until_from')),
+                'until_to' => DateRangeFilter::date($request->query('until_to')),
             ],
         ];
     }
@@ -88,7 +94,14 @@ final class CustomerFilter
             ->when(($filters['ref'] ?? '') === '1', fn ($q) => $q->whereNotNull('buyer_reference')->where('buyer_reference', '<>', ''))
             ->when(($filters['status'] ?? '') === 'active', fn ($q) => $q->where('active', true))
             ->when(($filters['status'] ?? '') === 'inactive', fn ($q) => $q->where('active', false))
-            ->when(($filters['tag'] ?? '') !== '', function ($q) use ($filters) {
+            // „Kunde bis“: ohne Enddatum bzw. bereits abgelaufen (vor heute)
+            ->when(($filters['until'] ?? '') === 'none', fn ($q) => $q->whereNull('customer_until'))
+            ->when(($filters['until'] ?? '') === 'expired', fn ($q) => $q->whereDate('customer_until', '<', now()->toDateString()))
+            // „Kunde bis“ im Zeitraum (Grenzen inklusive); Kunden ohne Enddatum fallen heraus, sobald ein Zeitraum gesetzt ist.
+            ->when(($filters['until_from'] ?? '') !== '', fn ($q) => $q->whereDate('customer_until', '>=', $filters['until_from']))
+            ->when(($filters['until_to'] ?? '') !== '', fn ($q) => $q->whereDate('customer_until', '<=', $filters['until_to']))
+            ->when(($filters['tag'] ?? '') === self::NO_TAG, fn ($q) => $q->where(fn ($w) => $w->whereNull('tags')->orWhereRaw("trim(tags) = ''")))
+            ->when(($filters['tag'] ?? '') !== '' && $filters['tag'] !== self::NO_TAG, function ($q) use ($filters) {
                 // Ganzes Tag-Wort treffen (nicht „#m“ in „#mm“): Wort steht allein, am Anfang, am Ende oder zwischen Leerzeichen.
                 $tag = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $filters['tag']);
                 $q->where(fn ($w) => $w->where('tags', $filters['tag'])

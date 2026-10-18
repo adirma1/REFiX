@@ -13,7 +13,7 @@
     (file LICENSE). If not, see <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>.
 
     SPDX-License-Identifier: GPL-2.0-only
---}}<div class="toolbar" style="margin-bottom:.5rem">
+--}}<div class="head-actions">
     <a @class(['btn', 'secondary' => ! request()->routeIs('payments.*')]) href="{{ route('payments.index') }}">{{ __('messages.payments.open_items') }}</a>
     <a @class(['btn', 'secondary' => ! request()->routeIs('bank.*')]) href="{{ route('bank.index') }}">{{ __('messages.bank.title') }}</a>
     <a @class(['btn', 'secondary' => ! request()->routeIs('dunning.*')]) href="{{ route('dunning.index') }}">{{ __('messages.dunning.title') }}</a>

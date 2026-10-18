@@ -23,6 +23,7 @@ use App\Models\Tenant;
 use App\Services\NumberGenerator;
 use App\Rules\IbanRule;
 use App\Support\Iban;
+use App\Support\ListSort;
 use App\Support\Tenancy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -37,7 +38,11 @@ class TenantController extends Controller
     /** Mandanten, in denen der Benutzer Admin ist. */
     public function index(Request $request): View
     {
-        return view('tenants.index', ['tenants' => $this->adminTenants($request)]);
+        $sort = ListSort::make($request, 'tenants', [
+            'name' => 'name', 'city' => fn ($t) => $t->zip.' '.$t->city, 'mode' => fn ($t) => (int) $t->test_mode,
+        ], ['name', 'asc']);
+
+        return view('tenants.index', ['sort' => $sort, 'tenants' => $sort->sortCollection($this->adminTenants($request))]);
     }
 
     public function create(): View

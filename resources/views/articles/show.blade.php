@@ -64,12 +64,14 @@
                 </td>
                 <td class="actions">
                     @can('delete-master-data')
-                        <form method="POST" action="{{ route('articles.prices.destroy', [$article, $price]) }}"
-                              onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn small danger" type="submit">{{ __('messages.delete') }}</button>
-                        </form>
+                        <div class="icon-actions">
+                            <form method="POST" action="{{ route('articles.prices.destroy', [$article, $price]) }}"
+                                  onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
+                                @csrf
+                                @method('DELETE')
+                                <x-icon-btn kind="delete"/>
+                            </form>
+                        </div>
                     @endcan
                 </td>
             </tr>

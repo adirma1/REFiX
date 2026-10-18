@@ -54,11 +54,11 @@
         <thead>
         <tr>
             <th class="pick-col"></th>
-            <th>{{ __('messages.users.name') }}</th>
-            <th>{{ __('messages.users.username') }}</th>
-            <th>{{ __('messages.users.email') }}</th>
-            <th>{{ __('messages.users.role') }}</th>
-            <th>{{ __('messages.two_factor.title') }}</th>
+            <x-th-sort :sort="$sort" col="name">{{ __('messages.users.name') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="username">{{ __('messages.users.username') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="email">{{ __('messages.users.email') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="role">{{ __('messages.users.role') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="two_factor">{{ __('messages.two_factor.title') }}</x-th-sort>
         </tr>
         </thead>
         <tbody>

@@ -29,6 +29,7 @@ use App\Services\Bank\BankImporter;
 use App\Services\Bank\BankMatcher;
 use App\Services\PaymentInvalid;
 use App\Services\PaymentService;
+use App\Support\ListSort;
 use App\Support\PerPage;
 use App\Support\Tenancy;
 use Illuminate\Http\RedirectResponse;
@@ -55,9 +56,17 @@ class BankController extends Controller
 
         $tab = in_array($request->query('tab'), self::TABS, true) ? $request->query('tab') : BankTransaction::NEW;
 
+        $sort = ListSort::make($request, 'bank.'.$tab, [
+            'date' => 'booking_date', 'counterparty' => 'counterparty_name', 'purpose' => 'purpose', 'amount' => 'amount',
+            // Rechnungsnummer der zugeordneten Zahlung (nur Reiter „Gebucht“)
+            'number' => fn ($q, string $dir) => $q->orderByRaw(
+                "(select invoices.number from payments join invoices on invoices.id = payments.invoice_id where payments.id = bank_transactions.payment_id) {$dir}"
+            ),
+        ], ['date', 'desc'], [['id', 'desc']]);
+
         $transactions = BankTransaction::where('status', $tab)
             ->with('payment.invoice')
-            ->orderByDesc('booking_date')->orderByDesc('id')
+            ->tap(fn ($q) => $sort->apply($q))
             ->paginate(PerPage::for($request->user()))->withQueryString();
 
         $suggestions = $tab === BankTransaction::NEW ? $this->matcher->suggest($transactions->items()) : [];
@@ -71,6 +80,7 @@ class BankController extends Controller
             : [];
 
         return view('bank.index', [
+            'sort' => $sort,
             'tab' => $tab,
             'transactions' => $transactions,
             'suggestions' => $suggestions,

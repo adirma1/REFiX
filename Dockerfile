@@ -21,7 +21,9 @@ COPY composer.json composer.lock* ./
 RUN composer install --no-interaction --no-progress --prefer-dist --no-scripts --no-autoloader
 
 COPY . .
-RUN composer dump-autoload --optimize --no-scripts \
+# Rechte vereinheitlichen: entpackte Dateien vom NAS haben oft 600/700 und wären für Apache (www-data) unlesbar.
+RUN chmod -R u+rwX,go+rX /var/www/html \
+    && composer dump-autoload --optimize --no-scripts \
     && mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
     && touch .env \
     && chown -R www-data:www-data storage bootstrap/cache .env

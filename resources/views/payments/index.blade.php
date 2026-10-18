@@ -17,8 +17,10 @@
 @section('title', __('messages.payments.open_items'))
 @section('content')
     @php($money = fn ($cents) => number_format($cents / 100, 2, ',', '.'))
-    <h1>{{ __('messages.payments.open_items') }}</h1>
-    @include('payments._tabs')
+    <div class="page-head">
+        <h1>{{ __('messages.payments.open_items') }}</h1>
+        @include('payments._tabs')
+    </div>
 
     <div class="tiles">
         <div class="tile"><div class="value">{{ $money($totals['open']) }}</div><div class="label">{{ __('messages.payments.total_open', ['n' => $totals['count']]) }}</div></div>
@@ -32,6 +34,8 @@
                 <option value="all" @selected($filter === 'all')>{{ __('messages.payments.filter_all') }}</option>
                 <option value="overdue" @selected($filter === 'overdue')>{{ __('messages.payments.filter_overdue') }}</option>
             </select>
+            <x-range-filter :label="__('messages.invoices.due')" :from="$dueFrom" :to="$dueTo"
+                            :presets="\App\Support\DateRangeFilter::duePresets()" from-key="due_from" to-key="due_to" route="payments.index"/>
             <button class="btn secondary" type="submit">{{ __('messages.search') }}</button>
         </form>
     </div>
@@ -50,13 +54,13 @@
         <thead>
         <tr>
             <th class="pick-col"></th>
-            <th>{{ __('messages.invoices.number') }}</th>
-            <th>{{ __('messages.invoices.customer') }}</th>
-            <th>{{ __('messages.invoices.due') }}</th>
-            <th class="num">{{ __('messages.invoices.gross') }}</th>
-            <th class="num">{{ __('messages.payments.paid') }}</th>
-            <th class="num">{{ __('messages.payments.open') }}</th>
-            <th>{{ __('messages.invoices.status') }}</th>
+            <x-th-sort :sort="$sort" col="number">{{ __('messages.invoices.number') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="customer">{{ __('messages.invoices.customer') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="due">{{ __('messages.invoices.due') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="gross" class="num">{{ __('messages.invoices.gross') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="paid" class="num">{{ __('messages.payments.paid') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="open" class="num">{{ __('messages.payments.open') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="status">{{ __('messages.invoices.status') }}</x-th-sort>
         </tr>
         </thead>
         <tbody>

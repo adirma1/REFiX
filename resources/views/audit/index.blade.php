@@ -16,7 +16,21 @@
 --}}@extends('layouts.app')
 @section('title', __('messages.nav.audit'))
 @section('content')
-    <h1>{{ __('messages.nav.audit') }}</h1>
+    <div class="page-head">
+        <h1>{{ __('messages.nav.audit') }}</h1>
+        <div class="head-actions" title="{{ $filtered ? __('messages.audit.export_filtered') : __('messages.audit.export_all') }}">
+            <a class="btn secondary" href="{{ route('audit.export', array_merge(request()->query(), ['format' => 'csv'])) }}">{{ __('messages.audit.export_csv') }}</a>
+            <a class="btn secondary" href="{{ route('audit.export', array_merge(request()->query(), ['format' => 'txt'])) }}">{{ __('messages.audit.export_txt') }}</a>
+            @if($totalCount > 0)
+                <form method="POST" action="{{ route('audit.clear') }}"
+                      onsubmit="return confirm(@js(__('messages.audit.clear_confirm', ['count' => $totalCount])))">
+                    @csrf
+                    @method('DELETE')
+                    <button class="btn danger" type="submit">{{ __('messages.audit.clear') }}</button>
+                </form>
+            @endif
+        </div>
+    </div>
 
     <form method="GET" action="{{ route('audit.index') }}" class="card">
         <div class="grid">
@@ -70,10 +84,10 @@
     <table class="audit-table">
         <thead>
         <tr>
-            <th>{{ __('messages.audit.time') }}</th>
-            <th>{{ __('messages.audit.user') }}</th>
-            <th>{{ __('messages.audit.action') }}</th>
-            <th>{{ __('messages.audit.details') }}</th>
+            <x-th-sort :sort="$sort" col="time">{{ __('messages.audit.time') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="user">{{ __('messages.audit.user') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="action">{{ __('messages.audit.action') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="details">{{ __('messages.audit.details') }}</x-th-sort>
         </tr>
         </thead>
         <tbody>

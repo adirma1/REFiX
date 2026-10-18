@@ -16,7 +16,14 @@
 --}}@extends('layouts.app')
 @section('title', __('messages.nav.quotes'))
 @section('content')
-    <h1>{{ __('messages.nav.quotes') }}</h1>
+    <div class="page-head">
+        <h1>{{ __('messages.nav.quotes') }}</h1>
+        @can('edit-invoices')
+            <div class="head-actions">
+                <a class="btn" href="{{ route('quotes.create') }}">{{ __('messages.quotes.new') }}</a>
+            </div>
+        @endcan
+    </div>
     <div class="toolbar">
         <form method="GET" action="{{ route('quotes.index') }}">
             <input type="text" name="q" value="{{ $search }}" placeholder="{{ __('messages.search') }}">
@@ -26,23 +33,23 @@
                     <option value="{{ $name }}" @selected($status === $name)>{{ __('messages.quotes.status_'.$name) }}</option>
                 @endforeach
             </select>
+            <x-range-filter :label="__('messages.invoices.date')" :from="$dateFrom" :to="$dateTo"
+                            :presets="\App\Support\DateRangeFilter::documentPresets()" route="quotes.index"/>
+            <x-range-filter :label="__('messages.quotes.valid_until')" :from="$validFrom" :to="$validTo"
+                            :presets="\App\Support\DateRangeFilter::validityPresets()" from-key="valid_from" to-key="valid_to" route="quotes.index"/>
             <button class="btn secondary" type="submit">{{ __('messages.search') }}</button>
         </form>
-        <span class="spacer"></span>
-        @can('edit-invoices')
-            <a class="btn" href="{{ route('quotes.create') }}">{{ __('messages.quotes.new') }}</a>
-        @endcan
     </div>
 
     <table>
         <thead>
         <tr>
-            <th>{{ __('messages.invoices.number') }}</th>
-            <th>{{ __('messages.invoices.customer') }}</th>
-            <th>{{ __('messages.invoices.date') }}</th>
-            <th>{{ __('messages.quotes.valid_until') }}</th>
-            <th class="num">{{ __('messages.invoices.gross') }}</th>
-            <th>{{ __('messages.invoices.status') }}</th>
+            <x-th-sort :sort="$sort" col="number">{{ __('messages.invoices.number') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="customer">{{ __('messages.invoices.customer') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="date">{{ __('messages.invoices.date') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="valid_until">{{ __('messages.quotes.valid_until') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="gross" class="num">{{ __('messages.invoices.gross') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="status">{{ __('messages.invoices.status') }}</x-th-sort>
         </tr>
         </thead>
         <tbody>

@@ -295,3 +295,70 @@ td.nowrap { white-space: nowrap; }
 .switch input:checked + .slider { background: var(--ok); }
 .switch input:checked + .slider::before { transform: translateX(1.4rem); }
 .switch input:focus-visible + .slider { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Sortierbare Spaltenköpfe */
+th.sortable { white-space: nowrap; }
+th.sortable .sort-link { color: inherit; text-decoration: none; cursor: pointer; }
+th.sortable .sort-link:hover { color: var(--text, inherit); }
+th.sortable .sort-ind { display: inline-block; margin-left: .3rem; font-size: .7rem; opacity: .35; }
+th.sortable.sorted .sort-ind { opacity: 1; }
+th.sortable:hover .sort-ind { opacity: .8; }
+
+/* Kundenliste: schmale Nummern-, Datums- und Aktionsspalten, E-Mail darf umbrechen */
+.customers-table th:first-child, .customers-table td:first-child { width: 1%; white-space: nowrap; }
+.customers-table td.email-col { max-width: 14rem; overflow-wrap: anywhere; }
+td.actions .icon-actions { display: inline-flex; gap: .35rem; justify-content: flex-end; }
+td.actions .icon-actions form { display: inline-flex; margin: 0; }
+td.actions:has(.icon-actions) { width: 1%; }
+
+/* Quadratische Icon-Buttons (Bearbeiten, Löschen, Herunterladen) */
+.ibtn { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; padding: 0; border: 0; border-radius: 6px; cursor: pointer; background: #e3e8ef; color: var(--text); text-decoration: none; }
+.ibtn:hover { background: #d3dae4; text-decoration: none; }
+.ibtn.danger { background: #fdeceb; color: var(--danger); }
+.ibtn.danger:hover { background: var(--danger); color: #fff; }
+.ibtn svg { width: 1.05rem; height: 1.05rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ibtn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Toolbar: Aktionen stehen immer rechtsbündig, auch wenn sie in eine neue Zeile umbrechen */
+.toolbar .spacer { display: none; }
+.toolbar .spacer + * { margin-left: auto; }
+/* Aufklappbarer Filter (Knopf mit Menü) */
+.dd-wrap { display: inline-flex; align-items: stretch; position: relative; }
+details.dd { position: relative; }
+details.dd > summary { list-style: none; }
+details.dd > summary::-webkit-details-marker { display: none; }
+.ddb { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .7rem; border: 1px solid var(--line); border-radius: 5px; background: #fff; font: inherit; cursor: pointer; white-space: nowrap; }
+.ddb.on { border-color: var(--primary); background: #eaf1fb; color: var(--primary-dark); }
+.dd-wrap:has(.dd-x) .ddb { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.dd-x { display: inline-flex; align-items: center; padding: 0 .6rem; border: 1px solid var(--primary); border-left: 0; border-radius: 0 5px 5px 0; background: #eaf1fb; color: var(--primary-dark); text-decoration: none; }
+.dd-x:hover { background: #d7e4f6; text-decoration: none; }
+.dd-panel { position: absolute; top: calc(100% + .3rem); left: 0; z-index: 20; width: 19rem; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 20px rgba(0, 0, 0, .12); padding: .4rem; }
+.dd-panel > a { display: block; padding: .4rem .6rem; border-radius: 5px; color: var(--text); text-decoration: none; }
+.dd-panel > a:hover, .dd-panel > a.act { background: #eaf1fb; }
+.dd-panel > a.act { font-weight: 600; color: var(--primary-dark); }
+.dd-panel hr { border: 0; border-top: 1px solid var(--line); margin: .35rem 0; }
+.dd-range { padding: .3rem .6rem .5rem; }
+.dd-range strong { font-size: .85rem; }
+.dd-range label { display: block; font-size: .8rem; color: var(--muted); margin: .35rem 0 .1rem; }
+.dd-range input[type=date] { width: 100%; box-sizing: border-box; padding: .4rem .5rem; border: 1px solid var(--line); border-radius: 5px; font: inherit; }
+.dd-range .btn { margin-top: .6rem; width: 100%; text-align: center; }
+
+/* Eigene Zeile für die Aktionsknöpfe unter den Filtern, rechtsbündig (Kunden, Artikel) */
+.toolbar.toolbar-actions { justify-content: flex-end; margin-top: -.25rem; }
+
+/* Kopfzeile: Überschrift links, Aktionsknöpfe rechtsbündig auf gleicher Höhe */
+.page-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; margin: 0 0 1rem; }
+.page-head h1 { margin: 0; }
+.page-head .head-actions { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
+
+/* Wiederkehrend: schmaler, damit die Tabelle auf dem iPad nicht überläuft */
+.recurring-table th, .recurring-table td { padding: .5rem .45rem; }
+/* Spaltenköpfe dürfen umbrechen; Datumsspalten nur so breit wie das Datum */
+.recurring-table th.sortable { white-space: normal; }
+.recurring-table th.col-date { width: 1%; white-space: normal; }
+.recurring-table td.col-date { width: 1%; white-space: nowrap; }
+
+/* Schmale Spalten schrumpfen auf den Inhalt, Bezeichnung und Kunde teilen sich den Rest */
+.recurring-table th.col-fit, .recurring-table td.col-fit { width: 1%; }
+
+th.sortable .sort-tail { white-space: nowrap; }

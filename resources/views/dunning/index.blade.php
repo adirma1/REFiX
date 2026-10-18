@@ -17,8 +17,10 @@
 @section('title', __('messages.dunning.title'))
 @section('content')
     @php($money = fn ($v) => number_format((float) $v, 2, ',', '.'))
-    <h1>{{ __('messages.dunning.title') }}</h1>
-    @include('payments._tabs')
+    <div class="page-head">
+        <h1>{{ __('messages.dunning.title') }}</h1>
+        @include('payments._tabs')
+    </div>
     @unless($enabled)
         <div class="alert warn">{{ __('messages.dunning.disabled_banner') }}</div>
     @endunless
@@ -65,13 +67,13 @@
                 <thead>
                 <tr>
                     <th class="pick-col"><input type="checkbox" class="pick-all" aria-label="{{ __('messages.dunning.select_all') }}"></th>
-                    <th>{{ __('messages.invoices.number') }}</th>
-                    <th>{{ __('messages.invoices.customer') }}</th>
-                    <th>{{ __('messages.invoices.due') }}</th>
-                    <th>{{ __('messages.dunning.next_step') }}</th>
-                    <th class="num">{{ __('messages.payments.open') }}</th>
-                    <th class="num">{{ __('messages.dunning.fee_interest') }}</th>
-                    <th class="num">{{ __('messages.dunning.total') }}</th>
+                    <x-th-sort :sort="$sort" col="number">{{ __('messages.invoices.number') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="customer">{{ __('messages.invoices.customer') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="due">{{ __('messages.invoices.due') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="step">{{ __('messages.dunning.next_step') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="open" class="num">{{ __('messages.payments.open') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="fee" class="num">{{ __('messages.dunning.fee_interest') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="total" class="num">{{ __('messages.dunning.total') }}</x-th-sort>
                 </tr>
                 </thead>
                 <tbody>
@@ -109,12 +111,12 @@
             <thead>
             <tr>
                 <th class="pick-col"></th>
-                <th>{{ __('messages.payments.date') }}</th>
-                <th>{{ __('messages.invoices.number') }}</th>
-                <th class="step-col">{{ __('messages.dunning.step') }}</th>
-                <th class="num">{{ __('messages.dunning.total') }}</th>
-                <th>{{ __('messages.dunning.pay_by') }}</th>
-                <th>{{ __('messages.invoices.status') }}</th>
+                <x-th-sort :sort="$sort" col="date">{{ __('messages.payments.date') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="number">{{ __('messages.invoices.number') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="step" class="step-col">{{ __('messages.dunning.step') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="total" class="num">{{ __('messages.dunning.total') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="pay_by">{{ __('messages.dunning.pay_by') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="status">{{ __('messages.invoices.status') }}</x-th-sort>
             </tr>
             </thead>
             <tbody>
@@ -149,9 +151,9 @@
         <table>
             <thead>
             <tr>
-                <th>{{ __('messages.invoices.number') }}</th>
-                <th>{{ __('messages.dunning.hold_reason') }}</th>
-                <th>{{ __('messages.dunning.hold_until') }}</th>
+                <x-th-sort :sort="$sort" col="number">{{ __('messages.invoices.number') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="reason">{{ __('messages.dunning.hold_reason') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="until">{{ __('messages.dunning.hold_until') }}</x-th-sort>
                 <th></th>
             </tr>
             </thead>

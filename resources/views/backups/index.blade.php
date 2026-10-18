@@ -39,9 +39,9 @@
         <table>
             <thead>
             <tr>
-                <th>{{ __('messages.backups.file') }}</th>
-                <th>{{ __('messages.backups.created_at') }}</th>
-                <th class="num">{{ __('messages.backups.size') }}</th>
+                <x-th-sort :sort="$sort" col="file">{{ __('messages.backups.file') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="created">{{ __('messages.backups.created_at') }}</x-th-sort>
+                <x-th-sort :sort="$sort" col="size" class="num">{{ __('messages.backups.size') }}</x-th-sort>
                 <th></th>
             </tr>
             </thead>
@@ -52,12 +52,14 @@
                     <td>{{ \Illuminate\Support\Carbon::createFromTimestamp($backup['created'])->timezone(config('app.timezone'))->format('d.m.Y H:i') }}</td>
                     <td class="num">{{ number_format($backup['size'] / 1048576, 2, ',', '.') }} MB</td>
                     <td class="actions">
-                        <a class="btn small secondary" href="{{ route('backups.download', $backup['name']) }}">{{ __('messages.backups.download') }}</a>
-                        <form method="POST" action="{{ route('backups.destroy', $backup['name']) }}" onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn small danger" type="submit">{{ __('messages.delete') }}</button>
-                        </form>
+                        <div class="icon-actions">
+                            <x-icon-btn kind="download" :href="route('backups.download', $backup['name'])"/>
+                            <form method="POST" action="{{ route('backups.destroy', $backup['name']) }}" onsubmit="return confirm('{{ __('messages.confirm_delete') }}')">
+                                @csrf
+                                @method('DELETE')
+                                <x-icon-btn kind="delete"/>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             @endforeach

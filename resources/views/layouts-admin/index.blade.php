@@ -123,10 +123,10 @@
             <table>
                 <thead>
                 <tr>
-                    <th>{{ __('messages.layouts.version_col') }}</th>
-                    <th>{{ __('messages.layouts.name') }}</th>
-                    <th>{{ __('messages.layouts.created') }}</th>
-                    <th>{{ __('messages.layouts.status') }}</th>
+                    <x-th-sort :sort="$sort" col="version">{{ __('messages.layouts.version_col') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="name">{{ __('messages.layouts.name') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="created">{{ __('messages.layouts.created') }}</x-th-sort>
+                    <x-th-sort :sort="$sort" col="status">{{ __('messages.layouts.status') }}</x-th-sort>
                     <th></th>
                 </tr>
                 </thead>

@@ -121,11 +121,11 @@
                     </a>
                 @endforeach
                 @if($cs['untagged'] > 0)
-                    <div class="tagrow muted">
+                    <a class="tagrow muted" href="{{ route('customers.index', ['status' => 'active', 'tag' => \App\Support\CustomerFilter::NO_TAG]) }}">
                         <span>{{ __('messages.dashboard.customers_untagged') }}</span>
                         <span class="track"><span class="bar" style="width:{{ round($cs['untagged'] / $tagMax * 100) }}%;opacity:.45"></span></span>
                         <span class="n">{{ $cs['untagged'] }}</span>
-                    </div>
+                    </a>
                 @endif
             </div>
             @if($cs['more'] > 0)

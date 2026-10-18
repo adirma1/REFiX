@@ -25,6 +25,7 @@ use App\Models\Invoice;
 use App\Models\Tenant;
 use App\Services\DunningInvalid;
 use App\Services\DunningService;
+use App\Support\ListSort;
 use App\Support\PerPage;
 use App\Support\Tenancy;
 use Illuminate\Http\RedirectResponse;
@@ -54,20 +55,47 @@ class DunningController extends Controller
         $perPage = PerPage::for($request->user());
         $data = [];
 
+        // Rechnungsnummer der Mahnung bzw. Sperre per Unterabfrage, damit auch seitenübergreifend sortiert wird.
+        $invoiceNumber = fn (string $table) => fn ($q, string $dir) => $q->orderByRaw(
+            "(select number from invoices where invoices.id = {$table}.invoice_id) {$dir}"
+        );
+
         if ($tab === 'due') {
-            $rows = $this->dunnings->suggestions();
+            $sort = ListSort::make($request, 'dunning.due', [
+                'default' => fn () => 0,
+                'number' => fn (array $r) => $r['invoice']->number,
+                'customer' => fn (array $r) => $r['invoice']->customer_snapshot['company'] ?? '',
+                'due' => fn (array $r) => $r['invoice']->due_date?->timestamp ?? 0,
+                'step' => fn (array $r) => $r['level'],
+                'open' => fn (array $r) => $r['calc']['open'],
+                'fee' => fn (array $r) => $r['calc']['fee'] + $r['calc']['interest'],
+                'total' => fn (array $r) => $r['calc']['total'],
+            ], ['default', 'asc']);
+            $rows = $sort->sortCollection($this->dunnings->suggestions());
             $page = LengthAwarePaginator::resolveCurrentPage();
             $data['items'] = new LengthAwarePaginator(
                 $rows->slice(($page - 1) * $perPage, $perPage)->values(), $rows->count(), $perPage, $page,
                 ['path' => route('dunning.index'), 'query' => $request->query()]
             );
         } elseif ($tab === 'history') {
-            $data['items'] = Dunning::with('invoice')->orderByDesc('id')->paginate($perPage)->withQueryString();
+            $sort = ListSort::make($request, 'dunning.history', [
+                'date' => 'dunned_on', 'number' => $invoiceNumber('dunnings'), 'step' => 'level', 'total' => 'total', 'pay_by' => 'pay_by',
+                // Offen (0) vor versendet (1) vor storniert (2)
+                'status' => fn ($q, string $dir) => $q->orderByRaw("case when voided_at is not null then 2 when sent_at is not null then 1 else 0 end {$dir}"),
+            ], ['date', 'desc'], [['id', 'desc']]);
+            $data['items'] = Dunning::with('invoice')->tap(fn ($q) => $sort->apply($q))->paginate($perPage)->withQueryString();
         } else {
-            $data['items'] = DunningHold::active()->with('invoice')->orderByDesc('id')->paginate($perPage)->withQueryString();
+            $sort = ListSort::make($request, 'dunning.holds', [
+                'default' => fn () => null,
+                'number' => $invoiceNumber('dunning_holds'), 'reason' => 'reason',
+                // Ohne Datum = bis zur Freigabe: gilt als „unbegrenzt“ und steht aufsteigend zuletzt
+                'until' => fn ($q, string $dir) => $q->orderByRaw("hold_until is null {$dir}")->orderBy('hold_until', $dir),
+            ], ['default', 'asc'], [['id', 'desc']]);
+            $data['items'] = DunningHold::active()->with('invoice')->tap(fn ($q) => $sort->apply($q))->paginate($perPage)->withQueryString();
         }
 
         return view('dunning.index', $data + [
+            'sort' => $sort,
             'tab' => $tab,
             'enabled' => $enabled,
             'counts' => [

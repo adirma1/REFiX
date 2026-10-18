@@ -4,6 +4,23 @@ Versionsnummer: Haupt.Neben.Korrektur (steht in `config/app.php` unter `version`
 
 Update: Dateien ins Verzeichnis kopieren, neu bauen (`docker compose build`) und starten. Änderungen an der Datenbank werden beim Start automatisch eingespielt.
 
+## 1.5.0 – 2026-10-18
+- Alle Tabellen sind sortierbar: Ein Klick auf den Spaltenkopf sortiert die ganze Liste (nicht nur die sichtbare Seite) aufsteigend, ein weiterer Klick absteigend im Wechsel. Ein Pfeil zeigt die aktive Spalte.
+  Gilt für Rechnungen, Angebote, Wiederkehrend, Kunden, Artikel, Offene Posten, Mahnwesen (Vorschläge, Mahnungen, Sperren), Bank (je Reiter), Protokoll, Benutzer, Mandanten, Mail-Zugänge, Nummernkreise, Backups und Layout-Versionen.
+- Die gewählte Sortierung wird je Benutzer und Liste gemerkt und beim nächsten Öffnen wieder verwendet; Suche und Filter bleiben beim Sortieren erhalten, die Seitenzahl beginnt wieder bei 1.
+  Ohne Klick gilt die bisherige Reihenfolge. Neue Datenbankspalte `users.list_sorts` (wird beim Start automatisch angelegt).
+- Kunden: Neuer Filter „Ohne Tag“ in der Kundenliste; die Zeile „ohne Tag“ in der Dashboard-Kundenkarte ist jetzt ein Link darauf (aktive Kunden ohne Tag).
+- Kundenliste kompakter: Spalten „Kunden-Nr.“ (schmal, einzeilig), „Firma/Name“ und „E-Mail“ (kürzer, darf umbrechen); „Bearbeiten“ und „Löschen“ stehen übereinander; neue sortierbare Spalte „Kunde bis“ vor „Status“ (das Datum steht nicht mehr unter dem Status).
+- Aktionen in Tabellenzeilen als Icon-Buttons (Stift = Bearbeiten, Papierkorb = Löschen, Pfeil = Herunterladen) mit Hinweistext: Kunden, Mandanten, E-Mail-Zugänge, Backups und Artikelpreise. Die Rückfrage vor dem Löschen bleibt.
+- Rechnungen und Angebote: gleicher aufklappbarer Zeitraum-Filter für das Datum (Dieser/Letzter Monat, Dieses/Letztes Quartal, Dieses/Letztes Jahr, letzte 30 Tage oder eigener Zeitraum).
+- Angebote: zusätzlicher Zeitraum-Filter „Gültig bis“; Offene Posten: Zeitraum-Filter „Fällig am“ (Heute, Diese Woche, Nächste 7/30 Tage, Monat, Quartal oder eigener Zeitraum).
+- Protokoll: Export als CSV (für Excel, Semikolon, UTF-8) oder Textdatei, es gelten die gesetzten Filter; „Protokoll löschen“ leert das gesamte Protokoll des Mandanten nach Rückfrage (es bleibt kein Eintrag zurück, daher vorher exportieren).
+- Kunden: Filter „Kunde bis“ als Zeitraum (von/bis, auch nur eine Grenze) mit Schnellwahlen (Jahr, Quartal, nächste 30 Tage, bereits abgelaufen, ohne Enddatum) in einem aufklappbaren Knopf „Kunde bis“; der Filter gilt auch für den Kunden-Export.
+- Knopfleisten über den Listen stehen rechtsbündig, auch wenn sie in eine zweite Zeile umbrechen. Die Aktionsknöpfe (Kunden: Exportieren/Importieren/Neuer Kunde, Artikel: Importieren/Neuer Artikel, Rechnungen: Neue Rechnung/Neue Gutschrift, Angebote: Neues Angebot, Wiederkehrend: Fällige Entwürfe erzeugen/Neue wiederkehrende Rechnung, Protokoll: Export/Löschen; Offene Posten/Bank/Mahnwesen: die drei Umschaltknöpfe) stehen rechtsbündig auf Höhe der Seitenüberschrift und sparen so eine Zeile. Die Tabelle „Wiederkehrend“ ist schmaler und passt jetzt auch auf das iPad.
+- Nicht sortierbar bleiben Aktionsspalten sowie Positionstabellen in Belegen und Formularen.
+- Docker: Beim Start des Containers werden die zwischengespeicherten Seiten (`storage/framework/views`) geleert. Dadurch erscheinen geänderte Seiten nach einem Update sofort und nicht erst, wenn der alte Zwischenspeicher zufällig älter ist.
+- Docker: Beim Bauen des Images werden die Dateirechte vereinheitlicht (Lesen für alle). Dateien, die auf dem NAS mit eingeschränkten Rechten entpackt wurden, sind damit für den Webserver lesbar; neue oder geänderte Seiten und Stile erscheinen dadurch zuverlässig nach dem Update.
+
 ## 1.4.0 – 2026-10-17
 - Mandanten: Der Satz „Zahlbar bis … ohne Abzug.“ im Zahlungsblock lässt sich je Mandant ausblenden (Mandanten → Rechnungseinstellungen, Standard: an). Fälligkeitsdatum, Bankdaten und GiroCode bleiben; die Einstellung gilt für alle Layouts des Mandanten.
 - Mahnwesen je Mandant abschaltbar (Einstellungen → Mahnwesen, Standard: an): Ohne Haken gibt es keine Mahnvorschläge, keine neuen Mahnungen, keine Mahnsperren und keine Dashboard-Kachel; bereits erstellte Mahnungen und Sperren bleiben sichtbar (nur lesen, PDF abrufbar).
