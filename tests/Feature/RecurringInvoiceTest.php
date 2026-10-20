@@ -478,6 +478,37 @@ class RecurringInvoiceTest extends TestCase
         $this->assertTrue((bool) Invoice::sole()->is_test);
     }
 
+    public function test_the_list_shows_the_gross_invoice_amount_of_each_template(): void
+    {
+        $this->template(['name' => 'Klein']);
+        $this->template(['name' => 'Gross', 'discount_percent' => '10', 'items' => [
+            ['article_id' => '', 'description' => 'Projekt', 'quantity' => '2', 'unit' => 'Stk',
+                'unit_price' => '1.000,00', 'discount_percent' => '', 'tax_rate' => '19'],
+        ]]);
+        $this->template(['name' => 'Verein', 'tax_mode' => 'export']);
+
+        $this->actAs($this->viewer)->get(route('recurring.index'))->assertOk()
+            ->assertSee('sort=amount', false)
+            ->assertSee(e(__('messages.recurring.amount_tip')), false)
+            ->assertSee('119,00', false)      // 100 netto + 19 %
+            ->assertSee('2.142,00', false)    // 2 × 1.000 − 10 % = 1.800 netto + 19 % = 2.142 brutto
+            ->assertSee('100,00', false);     // Steuerfall ohne Umsatzsteuer
+    }
+
+    public function test_the_list_can_be_sorted_by_amount_in_both_directions(): void
+    {
+        $this->template(['name' => 'Klein']);
+        $this->template(['name' => 'Gross', 'items' => [
+            ['article_id' => '', 'description' => 'Projekt', 'quantity' => '5', 'unit' => 'Stk',
+                'unit_price' => '1.000,00', 'discount_percent' => '', 'tax_rate' => '19'],
+        ]]);
+
+        $this->actAs($this->viewer)->get(route('recurring.index', ['sort' => 'amount', 'dir' => 'asc']))
+            ->assertOk()->assertSeeInOrder(['Klein', 'Gross']);
+        $this->get(route('recurring.index', ['sort' => 'amount', 'dir' => 'desc']))
+            ->assertOk()->assertSeeInOrder(['Gross', 'Klein']);
+    }
+
     public function test_menu_contains_the_recurring_entry(): void
     {
         $this->actAs($this->viewer)->get(route('dashboard'))->assertOk()->assertSee(route('recurring.index'), false);

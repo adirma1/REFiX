@@ -19,6 +19,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Models\BankImport;
 use App\Models\BankTransaction;
 use App\Models\Invoice;
@@ -86,7 +87,10 @@ class BankController extends Controller
             'suggestions' => $suggestions,
             'options' => $options,
             'counts' => BankTransaction::selectRaw('status, COUNT(*) as c')->groupBy('status')->pluck('c', 'status')->all(),
-            'imports' => BankImport::latest('id')->limit(5)->get(),
+            'imports' => BankImport::withCount([
+            'transactions',
+            'transactions as booked_count' => fn ($q) => $q->where('status', BankTransaction::BOOKED),
+        ])->latest('id')->limit(5)->get(),
             'matcher' => BankMatcher::class,
         ]);
     }
@@ -257,6 +261,27 @@ class BankController extends Controller
         }
 
         return redirect()->route('bank.index', ['tab' => BankTransaction::IGNORED]);
+    }
+
+    /**
+     * Einen Import samt seinen Bankzeilen löschen (z. B. Datei im falschen Mandanten eingelesen).
+     * Nur möglich, solange keine Zeile daraus gebucht ist; gebuchte Zahlungen zuerst stornieren.
+     */
+    public function destroyImport(BankImport $import): RedirectResponse
+    {
+        $this->authorize('manage-payments');
+
+        if ($import->transactions()->where('status', BankTransaction::BOOKED)->exists()) {
+            return redirect()->route('bank.index')->with('warning', __('messages.bank.import_has_booked', ['file' => $import->filename]));
+        }
+
+        $rows = $import->transactions()->count();
+        $import->transactions()->delete();
+        $import->delete();
+
+        AuditLog::record('bank.import_deleted', null, ['file' => $import->filename, 'rows' => $rows]);
+
+        return redirect()->route('bank.index')->with('status', __('messages.bank.import_deleted', ['file' => $import->filename, 'n' => $rows]));
     }
 
     private function imported(BankImport $import, int $skipped = 0): RedirectResponse

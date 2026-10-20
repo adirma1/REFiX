@@ -461,4 +461,72 @@ class BankTest extends TestCase
         $this->assertSame('new', $tx->fresh()->status);
         $this->assertSame(1, BankTransaction::count());
     }
+
+    public function test_an_import_without_bookings_can_be_deleted_and_read_in_again(): void
+    {
+        $content = $this->camt([['297,50', 'Rechnung R-2026-0001', 'Kunde 10001 GmbH'], ['-50,00', 'Kontofuehrung', 'Bank']]);
+        $this->upload($content, 'falsch.xml');
+        Tenancy::set($this->tenant->id);
+        $import = BankImport::sole();
+        $this->assertSame(2, BankTransaction::count());
+
+        $this->actAs($this->accounting)->delete(route('bank.imports.destroy', $import))
+            ->assertRedirect(route('bank.index'))->assertSessionHas('status');
+
+        Tenancy::set($this->tenant->id);
+        $this->assertSame(0, BankImport::count());
+        $this->assertSame(0, BankTransaction::count());
+        $this->assertDatabaseHas('audit_logs', ['action' => 'bank.import_deleted']);
+
+        // Nach dem Löschen gilt die Datei nicht mehr als bekannt.
+        $this->upload($content, 'richtig.xml');
+        Tenancy::set($this->tenant->id);
+        $this->assertSame(2, BankImport::sole()->new_count);
+        $this->assertSame(2, BankTransaction::count());
+    }
+
+    public function test_an_import_with_booked_rows_cannot_be_deleted(): void
+    {
+        $invoice = $this->invoice();
+        $this->upload($this->camt([['297,50', 'Rechnung '.$invoice->number, 'Kunde 10001 GmbH']]));
+        $tx = $this->tx($invoice->number);
+        $this->actAs($this->accounting)->post(route('bank.book'), ['book' => [$tx->id => '1'], 'invoice' => [$tx->id => $invoice->id]]);
+        Tenancy::set($this->tenant->id);
+        $this->assertSame('booked', $tx->fresh()->status);
+        $import = BankImport::sole();
+
+        $this->actAs($this->accounting)->delete(route('bank.imports.destroy', $import))
+            ->assertRedirect(route('bank.index'))->assertSessionHas('warning');
+
+        Tenancy::set($this->tenant->id);
+        $this->assertSame(1, BankImport::count());
+        $this->assertSame(1, BankTransaction::count());
+    }
+
+    public function test_an_import_of_another_tenant_cannot_be_deleted_and_clerks_are_refused(): void
+    {
+        $this->upload($this->camt([['10,00', 'Eingang', 'Jemand']]));
+        Tenancy::set($this->tenant->id);
+        $import = BankImport::sole();
+
+        $other = $this->makeTenant();
+        $otherAdmin = $this->makeUser($other, 'admin');
+        $this->actAs($otherAdmin, $other)->delete(route('bank.imports.destroy', $import->id))->assertNotFound();
+
+        $this->actAs($this->clerk)->delete(route('bank.imports.destroy', $import->id))->assertForbidden();
+
+        Tenancy::set($this->tenant->id);
+        $this->assertSame(1, BankImport::count());
+    }
+
+    public function test_bank_page_shows_the_tenant_and_the_delete_button(): void
+    {
+        $this->upload($this->camt([['10,00', 'Eingang', 'Jemand']]), 'maerz.xml');
+
+        $this->actAs($this->accounting)->get(route('bank.index'))
+            ->assertOk()
+            ->assertSee($this->tenant->name)
+            ->assertSee('maerz.xml')
+            ->assertSee(__('messages.bank.import_delete'), false);
+    }
 }

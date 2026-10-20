@@ -23,22 +23,44 @@
     </div>
 
     <div class="card">
-        <form method="POST" action="{{ route('bank.upload') }}" enctype="multipart/form-data" style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+        <form method="POST" action="{{ route('bank.upload') }}" enctype="multipart/form-data" style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap"
+              @if($userTenants->count() > 1) onsubmit="return confirm(@js(__('messages.bank.confirm_tenant', ['tenant' => $currentTenant->name])))" @endif>
             @csrf
             <label for="file"><strong>{{ __('messages.bank.upload') }}</strong>
                 <span class="tip" data-tip="{{ __('messages.bank.upload_tip') }}" tabindex="0" aria-label="{{ __('messages.bank.upload_tip') }}">ⓘ</span>
             </label>
             <input type="file" id="file" name="file" required>
             <button class="btn" type="submit">{{ __('messages.bank.read') }}</button>
+            <span class="muted">{{ __('messages.bank.for_tenant') }}: <strong>{{ $currentTenant->name }}</strong></span>
         </form>
         @error('file')<div class="error">{{ $message }}</div>@enderror
         @if($imports->isNotEmpty())
-            <p class="muted" style="margin-bottom:0">
-                {{ __('messages.bank.last_imports') }}:
+            <table class="bank-imports" style="margin-top:.75rem">
+                <caption class="muted" style="text-align:left;padding-bottom:.25rem">{{ __('messages.bank.last_imports') }}</caption>
+                <tbody>
                 @foreach($imports as $import)
-                    {{ $import->filename }} ({{ strtoupper($import->format) }}, {{ $import->created_at?->timezone(config('app.timezone'))->format('d.m.Y H:i') }}, {{ __('messages.bank.import_counts', ['new' => $import->new_count, 'dup' => $import->duplicate_count]) }}){{ ! $loop->last ? ' · ' : '' }}
+                    <tr>
+                        <td>{{ $import->filename }}</td>
+                        <td class="nowrap muted">{{ strtoupper($import->format) }}, {{ $import->created_at?->timezone(config('app.timezone'))->format('d.m.Y H:i') }}</td>
+                        <td class="muted">{{ __('messages.bank.import_counts', ['new' => $import->new_count, 'dup' => $import->duplicate_count]) }}</td>
+                        <td class="actions">
+                            @can('manage-payments')
+                                @if($import->booked_count === 0)
+                                    <form method="POST" action="{{ route('bank.imports.destroy', $import) }}"
+                                          onsubmit="return confirm(@js(__('messages.bank.import_delete_confirm', ['file' => $import->filename, 'n' => $import->transactions_count, 'tenant' => $currentTenant->name])))">
+                                        @csrf
+                                        @method('DELETE')
+                                        <x-icon-btn kind="delete" title="{{ __('messages.bank.import_delete') }}"/>
+                                    </form>
+                                @else
+                                    <span class="muted" title="{{ __('messages.bank.import_booked_hint') }}">{{ __('messages.bank.import_booked', ['n' => $import->booked_count]) }}</span>
+                                @endif
+                            @endcan
+                        </td>
+                    </tr>
                 @endforeach
-            </p>
+                </tbody>
+            </table>
         @endif
     </div>
 

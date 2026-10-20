@@ -352,13 +352,41 @@ details.dd > summary::-webkit-details-marker { display: none; }
 .page-head .head-actions { display: flex; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
 
 /* Wiederkehrend: schmaler, damit die Tabelle auf dem iPad nicht überläuft */
-.recurring-table th, .recurring-table td { padding: .5rem .45rem; }
+.recurring-table th, .recurring-table td { padding: .5rem .35rem; }
+.recurring-table th { font-size: .76rem; letter-spacing: 0; }
 /* Spaltenköpfe dürfen umbrechen; Datumsspalten nur so breit wie das Datum */
 .recurring-table th.sortable { white-space: normal; }
 .recurring-table th.col-date { width: 1%; white-space: normal; }
 .recurring-table td.col-date { width: 1%; white-space: nowrap; }
 
+/* Bezeichnung und Kunde: lange Wörter werden getrennt (lang="de") bzw. notfalls umgebrochen, damit die Tabelle nie breiter als das Fenster wird */
+.recurring-table td:nth-child(1), .recurring-table td:nth-child(2) { hyphens: auto; overflow-wrap: anywhere; min-width: 5rem; }
+
 /* Schmale Spalten schrumpfen auf den Inhalt, Bezeichnung und Kunde teilen sich den Rest */
 .recurring-table th.col-fit, .recurring-table td.col-fit { width: 1%; }
+/* Rechnungsbetrag: höchstens 9 Zeichen breit (z. B. 12.345,67) */
+.recurring-table th.col-amt { width: 1%; white-space: normal; }
+.recurring-table td.col-amt { width: 1%; white-space: nowrap; }
 
 th.sortable .sort-tail { white-space: nowrap; }
+
+/* Zahlungskarte: Stornierung bleibt in der Karte (iPad): schmale Aktionsspalte, Feld und Knopf untereinander */
+#payments td.actions { white-space: normal; width: 9.5rem; min-width: 9.5rem; }
+#payments .reverse-form { display: flex; flex-direction: column; gap: .3rem; align-items: stretch; }
+#payments .reverse-form input[type=text] { width: 100%; min-width: 0; box-sizing: border-box; }
+#payments .reverse-form .btn { white-space: nowrap; }
+#payments .pay-table th, #payments .pay-table td { padding: .5rem .45rem; }
+#payments .pay-table td:nth-child(1), #payments .pay-table td:nth-child(3) { white-space: nowrap; }
+#payments .pay-table td:nth-child(4) { overflow-wrap: anywhere; }
+
+/* Kundenauswahl mit Suchfeld (customer-combo.js) */
+.combo { position: relative; }
+.combo-input { padding-right: 2rem !important; }
+.combo-x { position: absolute; top: 0; right: 0; height: 100%; width: 2rem; border: 0; background: transparent; color: var(--muted); cursor: pointer; font: inherit; }
+.combo-x:hover { color: var(--text); }
+.combo-list { position: absolute; z-index: 30; top: calc(100% + .2rem); left: 0; right: 0; max-height: 18rem; overflow-y: auto; margin: 0; padding: .25rem; list-style: none; background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 6px 20px rgba(0, 0, 0, .12); }
+.combo-list li { padding: .5rem .6rem; border-radius: 5px; cursor: pointer; }
+.combo-list li:hover, .combo-list li.act { background: #eaf1fb; }
+.combo-list li.act { font-weight: 600; color: var(--primary-dark); }
+.combo-list li.none { color: var(--muted); cursor: default; }
+.combo-list li.none:hover { background: transparent; }

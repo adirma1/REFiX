@@ -89,6 +89,19 @@ class RecurringInvoice extends Model
         return self::INTERVALS[$this->interval] ?? 1;
     }
 
+    /** Gesamtbeträge laut Vorlage (Preise der Positionen, Rabatt, Steuerfall); Artikelpreise gelten erst zum Stichtag neu. */
+    public function totals(): array
+    {
+        return \App\Services\InvoiceCalculator::calculate(
+            $this->items->map(fn ($i) => [
+                'quantity' => $i->quantity, 'unit_price' => $i->unit_price,
+                'discount_percent' => $i->discount_percent, 'tax_rate' => $i->tax_rate,
+            ])->all(),
+            (float) $this->discount_percent,
+            (string) $this->tax_mode,
+        );
+    }
+
     /** Stichtag Nummer $k (0 = Ankerdatum), immer vom Anker aus gerechnet. */
     public function occurrenceDate(int $k): Carbon
     {

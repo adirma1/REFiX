@@ -191,7 +191,7 @@ class ListSortTest extends TestCase
         $lists = [
             ['invoices.index', [], ['number', 'type', 'customer', 'date', 'gross', 'status']],
             ['quotes.index', [], ['number', 'customer', 'date', 'valid_until', 'gross', 'status']],
-            ['recurring.index', [], ['name', 'customer', 'interval', 'next_date', 'end_date', 'drafts', 'status']],
+            ['recurring.index', [], ['name', 'customer', 'amount', 'interval', 'next_date', 'end_date', 'drafts', 'status']],
             ['customers.index', [], ['number', 'company', 'city', 'email', 'until', 'status']],
             ['articles.index', [], ['number', 'name', 'unit', 'tax', 'price']],
             ['payments.index', [], ['number', 'customer', 'due', 'gross', 'paid', 'open', 'status']],

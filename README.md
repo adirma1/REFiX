@@ -12,7 +12,7 @@ RE-FiX läuft als Docker-Stack (Laravel 12, PHP 8.3, MariaDB) und ist für klein
 - **Versand per E-Mail:** Rechnungen, Gutschriften, Angebote und Mahnungen verschickst du direkt aus RE-FiX.
 - **Wiederkehrende Rechnungen:** monatlich, vierteljährlich oder jährlich, einfach einzurichten und automatisch als Entwurf erzeugt.
 
-Version 1.5.0 · Lizenz GPL-2.0 · Autor Martin Adirsch
+Version 1.6.0 · Lizenz GPL-2.0 · Autor Martin Adirsch
 
 ## Inhalt
 
@@ -125,6 +125,7 @@ Domain oder Port später zu ändern erfordert nur die `.env` (`APP_URL`, `APP_PO
 
 ### Rechnungen und Gutschriften
 
+- **Kunden suchen statt scrollen:** In den Formularen für Rechnungen, Angebote und wiederkehrende Rechnungen ist die Kundenauswahl ein Suchfeld. Tippe einen Teil der Kundennummer oder des Namens (z. B. „mül“); die Liste zeigt nur passende Kunden. Wähle per Klick/Antippen oder mit Pfeiltasten und Enter; ✕ leert das Feld. Umlaute und Groß-/Kleinschreibung spielen keine Rolle.
 - **Entwurf → Freigabe:** Rechnungen und Gutschriften werden als Entwurf angelegt. Erst die **Freigabe** vergibt die lückenlose Nummer, friert Beträge und Kundendaten ein und archiviert das PDF. Freigegebene Belege sind unveränderlich; Korrekturen laufen über eine **Gutschrift** (Button an der freigegebenen Rechnung).
   Nur die Darstellung lässt sich korrigieren: **„PDF neu erzeugen“** (Buchhaltung/Admin) ersetzt das Archiv-PDF durch eine Fassung mit dem aktuellen Layout und Logo; Beträge und Daten bleiben unverändert, die bisherige Datei liegt als Kopie unter
   `storage/app/private/invoices/<Mandant>/replaced/`, die Aktion steht im Protokoll.
@@ -173,6 +174,8 @@ Unter „Wiederkehrend“ legst du Vorlagen an (Kunde, Positionen, Texte, Rhythm
   (bezogen auf den Beginn des Zeitraums).
 - **Preise:** Stammartikel nehmen den Preis aus der Preistabelle zum Rechnungsdatum (Preiserhöhungen greifen so automatisch),
   freie Positionen behalten ihren Preis. Mengen bleiben unverändert.
+- **Betrag in der Liste:** Die Tabelle zeigt je Vorlage den Rechnungsbetrag brutto (Positionen laut Vorlage, mit Rabatt und Steuerfall) und die Währung; die Spalte ist sortierbar. Artikelpreise gelten erst zum Stichtag, der Betrag kann sich dann ändern.
+- **Bezeichnung:** Wählst du den Kunden aus, wird eine noch leere Bezeichnung automatisch mit dem Kundennamen gefüllt; eine eigene Bezeichnung bleibt erhalten.
 - **Kündigung:** Enddatum eintragen; danach entstehen keine Entwürfe mehr. Pausieren geht über „Aktiv“.
 - **Aus einer Rechnung:** In jeder Rechnung (Entwurf oder freigegeben) gibt es „Als wiederkehrende Rechnung speichern“.
   Die Vorlage startet pausiert, damit du Rhythmus und Texte (Monat durch `{monat}` ersetzen) prüfen kannst.

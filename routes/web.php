@@ -146,6 +146,7 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::post('/bank/ignore', [BankController::class, 'ignoreMany'])->name('bank.ignore-many');
         Route::post('/bank/{transaction}/ignore', [BankController::class, 'ignore'])->name('bank.ignore');
         Route::post('/bank/{transaction}/restore', [BankController::class, 'restore'])->name('bank.restore');
+        Route::delete('/bank/imports/{import}', [BankController::class, 'destroyImport'])->whereNumber('import')->name('bank.imports.destroy');
 
         Route::get('/dunning', [DunningController::class, 'index'])->name('dunning.index');
         Route::post('/dunning', [DunningController::class, 'store'])->name('dunning.store');

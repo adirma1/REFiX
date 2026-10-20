@@ -55,11 +55,12 @@ class RecurringInvoiceController extends Controller
         // Ohne Klick: aktive Vorlagen zuerst, dann nach nächstem Stichtag.
         $sort = ListSort::make($request, 'recurring', [
             'default' => fn ($q) => $q->orderByDesc('active')->orderBy('next_date'),
-            'name' => 'name', 'customer' => ListSort::byCustomer('recurring_invoices'), 'interval' => 'interval',
+            'name' => 'name', 'customer' => ListSort::byCustomer('recurring_invoices'),
+            'amount' => fn ($r) => $r->totals()['gross_total'], 'interval' => 'interval',
             'next_date' => 'next_date', 'end_date' => 'end_date', 'drafts' => 'drafts_count', 'status' => 'active',
         ], ['default', 'asc'], [['id', 'asc']]);
 
-        $recurrings = RecurringInvoice::query()->with('customer')
+        $recurrings = RecurringInvoice::query()->with(['customer', 'items'])
             ->withCount(['invoices as drafts_count' => fn ($q) => $q->where('status', Invoice::STATUS_DRAFT)])
             ->when($search !== '', function ($query) use ($search) {
                 $like = '%'.$search.'%';
@@ -74,8 +75,13 @@ class RecurringInvoiceController extends Controller
             ->when($filters['interval'] !== '', fn ($q) => $q->where('interval', $filters['interval']))
             ->when($filters['billing'] !== '', fn ($q) => $q->where('billing', $filters['billing']))
             ->when($filters['drafts'] === '1', fn ($q) => $q->whereHas('invoices', fn ($i) => $i->where('status', Invoice::STATUS_DRAFT)))
-            ->tap(fn ($q) => $sort->apply($q))
+            ->when($sort->key !== 'amount', fn ($q) => $sort->apply($q), fn ($q) => $q->orderBy('id'))
             ->get();
+
+        // Der Betrag wird aus den Positionen berechnet und lässt sich nicht in der Abfrage sortieren.
+        if ($sort->key === 'amount') {
+            $recurrings = $sort->sortCollection($recurrings);
+        }
 
         return view('recurring.index', [
             'sort' => $sort, 'recurrings' => $recurrings, 'search' => $search, 'filters' => $filters,

@@ -4,6 +4,14 @@ Versionsnummer: Haupt.Neben.Korrektur (steht in `config/app.php` unter `version`
 
 Update: Dateien ins Verzeichnis kopieren, neu bauen (`docker compose build`) und starten. Änderungen an der Datenbank werden beim Start automatisch eingespielt.
 
+## 1.6.0 – 2026-10-20
+- Kundenauswahl mit Suchfeld: In den Formularen für Rechnungen, Angebote und wiederkehrende Rechnungen tippst du einen Teil von Kundennummer oder Name (z. B. „mül“), und die Liste zeigt nur noch passende Kunden. Auswahl per Klick oder Antippen, mit Pfeiltasten und Enter oder Escape; Groß-/Kleinschreibung und Umlaute spielen keine Rolle („mueller“ findet „Müller“), ✕ löscht die Auswahl. Ein Klick ins leere Feld zeigt wie bisher alle Kunden.
+- Wiederkehrende Rechnungen: Das Feld „Bezeichnung“ wird beim Auswählen des Kunden automatisch mit dem Kundennamen gefüllt, wenn es noch leer ist. Eine selbst eingetragene Bezeichnung bleibt unverändert.
+- Wiederkehrend: Die Tabelle zeigt jetzt den Rechnungsbetrag (brutto, berechnet aus den Positionen der Vorlage mit Rabatt und Steuerfall) in einer schmalen, sortierbaren Spalte „Brutto“ (wie in der Rechnungsliste) mit Währung. Artikelpreise gelten erst zum Stichtag, der Betrag kann sich dann ändern. Kopfzeile und Abstände der Tabelle sind etwas kompakter, damit sie auf dem iPad weiter passt; lange Wörter in Bezeichnung und Kunde werden getrennt, sodass die Tabelle nie breiter als das Fenster wird.
+- Bank: Ein eingelesener Kontoauszug lässt sich wieder löschen (z. B. wenn er im falschen Mandanten eingelesen wurde). In der Liste „Zuletzt eingelesen“ steht dafür ein Papierkorb-Symbol; gelöscht werden der Import und seine Bankzeilen, Rechnungen und Zahlungen bleiben unberührt. Ist aus dem Import schon etwas gebucht, wird das angezeigt und das Löschen ist gesperrt (erst die Zahlungen stornieren). Die Datei kann danach erneut eingelesen werden. Das Löschen wird im Protokoll festgehalten.
+- Bank: Beim Einlesen steht der aktuelle Mandant deutlich neben dem Knopf; wer mehrere Mandanten hat, bekommt vor dem Einlesen eine Rückfrage mit dem Mandantennamen.
+- Zahlungen an der Rechnung: Das Feld „Grund der Stornierung“ mit dem Knopf „Stornieren“ ragt nicht mehr aus der Karte, auch nicht auf dem iPad. Die Zahlungstabelle hat eigene Spaltenbreiten, lange Verwendungszwecke brechen um.
+
 ## 1.5.0 – 2026-10-18
 - Alle Tabellen sind sortierbar: Ein Klick auf den Spaltenkopf sortiert die ganze Liste (nicht nur die sichtbare Seite) aufsteigend, ein weiterer Klick absteigend im Wechsel. Ein Pfeil zeigt die aktive Spalte.
   Gilt für Rechnungen, Angebote, Wiederkehrend, Kunden, Artikel, Offene Posten, Mahnwesen (Vorschläge, Mahnungen, Sperren), Bank (je Reiter), Protokoll, Benutzer, Mandanten, Mail-Zugänge, Nummernkreise, Backups und Layout-Versionen.

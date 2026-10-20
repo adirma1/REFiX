@@ -68,10 +68,12 @@
                 <x-field name="name" :label="__('messages.recurring.name')" :value="$recurring->name" required />
                 <div class="field">
                     <label for="customer_id">{{ __('messages.invoices.customer') }} *</label>
-                    <select id="customer_id" name="customer_id" required>
+                    <select id="customer_id" name="customer_id" required data-fill-name="name"
+                            data-placeholder="{{ __('messages.invoices.customer_search') }}" data-pick-msg="{{ __('messages.invoices.customer_pick') }}" data-none-msg="{{ __('messages.invoices.customer_none') }}">
                         <option value="">–</option>
                         @foreach($customers as $customer)
                             <option value="{{ $customer->id }}"
+                                    data-name="{{ $customer->company }}"
                                     data-currency="{{ $customer->currency }}"
                                     data-buyer="{{ $customer->buyer_reference }}"
                                     @selected((string) $val('customer_id', $recurring->customer_id) === (string) $customer->id)>
@@ -207,5 +209,6 @@
     @endif
 @endsection
 @push('scripts')
+    <script src="{{ asset('js/customer-combo.js') }}?v={{ filemtime(public_path('js/customer-combo.js')) }}"></script>
     <script src="{{ asset('js/invoice-form.js') }}?v={{ filemtime(public_path('js/invoice-form.js')) }}"></script>
 @endpush

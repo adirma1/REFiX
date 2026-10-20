@@ -66,6 +66,7 @@
         <tr>
             <x-th-sort :sort="$sort" col="name">{{ __('messages.recurring.name') }}</x-th-sort>
             <x-th-sort :sort="$sort" col="customer">{{ __('messages.invoices.customer') }}</x-th-sort>
+            <x-th-sort :sort="$sort" col="amount" class="col-amt num">{{ __('messages.invoices.gross') }}</x-th-sort>
             <x-th-sort :sort="$sort" col="interval" class="col-fit">{{ __('messages.recurring.interval') }}</x-th-sort>
             <x-th-sort :sort="$sort" col="next_date" class="col-date">{{ __('messages.recurring.next_date') }}</x-th-sort>
             <x-th-sort :sort="$sort" col="end_date" class="col-date">{{ __('messages.recurring.end_date') }}</x-th-sort>
@@ -80,6 +81,8 @@
                 <td><a href="{{ route('recurring.edit', $recurring) }}">{{ $recurring->name }}</a></td>
                 <td>{{ $recurring->customer?->company }} <span class="muted nowrap">{{ $recurring->customer?->customer_number }}</span>
                     @if($recurring->customer?->isBlockedFor($recurring->next_date))<br><span class="badge warn">{{ __('messages.customers.blocked_hint') }}</span>@endif</td>
+                @php($total = $recurring->totals())
+                <td class="num col-amt" title="{{ __('messages.recurring.amount_tip') }}">{{ number_format($total['gross_total'], 2, ',', '.') }}<br><span class="muted">{{ $recurring->currency }}</span></td>
                 <td class="col-fit">{{ __('messages.recurring.interval_'.$recurring->interval) }}<br><span class="muted">{{ __('messages.recurring.billing_'.$recurring->billing) }}</span></td>
                 <td class="col-date">{{ $recurring->next_date->format('d.m.Y') }}</td>
                 <td class="col-date">{{ $recurring->end_date?->format('d.m.Y') }}</td>
@@ -87,7 +90,7 @@
                 <td class="col-fit nowrap"><span @class(['badge', 'ok' => $state === 'active', 'warn' => $state === 'paused'])>{{ __('messages.recurring.state_'.$state) }}</span></td>
             </tr>
         @empty
-            <tr><td colspan="7" class="muted">{{ __('messages.recurring.empty') }}</td></tr>
+            <tr><td colspan="8" class="muted">{{ __('messages.recurring.empty') }}</td></tr>
         @endforelse
         </tbody>
     </table>

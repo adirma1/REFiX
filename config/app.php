@@ -24,7 +24,7 @@ return [
     'brand' => 'RE-FiX',
 
     // Programmversion (Haupt.Neben.Korrektur) – wird in Seitenleiste, Anmeldeseite und Info-Seite angezeigt.
-    'version' => '1.5.0',
+    'version' => '1.6.0',
     'env' => env('APP_ENV', 'production'),
     'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'http://localhost'),

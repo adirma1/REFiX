@@ -29,7 +29,7 @@
     </div>
 
     @if($payments->isNotEmpty())
-        <table class="audit-table" style="margin-top:.75rem">
+        <table class="pay-table" style="margin-top:.75rem">
             <thead>
             <tr>
                 <th>{{ __('messages.payments.date') }}</th><th>{{ __('messages.payments.kind') }}</th>
@@ -55,7 +55,7 @@
                     <td class="actions">
                         @can('manage-payments')
                             @if(! $payment->isReversed() && ! $payment->isDiscount())
-                                <form method="POST" action="{{ route('payments.reverse', $payment) }}" style="display:flex;gap:.3rem">
+                                <form method="POST" action="{{ route('payments.reverse', $payment) }}" class="reverse-form">
                                     @csrf
                                     <input type="text" name="reason" required maxlength="255" placeholder="{{ __('messages.payments.reverse_reason') }}" aria-label="{{ __('messages.payments.reverse_reason') }}">
                                     <button class="btn small danger" type="submit">{{ __('messages.payments.reverse') }}</button>
